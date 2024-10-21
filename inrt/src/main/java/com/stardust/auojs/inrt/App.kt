@@ -27,7 +27,6 @@ import org.autojs.autoxjs.inrt.R
 
 class App : Application() {
 
-    var TAG = "inrt.application";
     override fun onCreate() {
         super.onCreate()
         GlobalAppContext.set(
@@ -91,4 +90,7 @@ class App : Application() {
         manager.notify(null, 0, builder.build())
     }
 
+    companion object {
+        private const val TAG = "inrt.application";
+    }
 }

@@ -40,8 +40,7 @@
             android:clearTaskOnLaunch="true"
             android:exported="true"
             android:finishOnTaskLaunch="true"
-            android:process="@string/text_script_process_name"
-            android:theme="@style/ScriptTheme.Splash">
+            android:process="@string/text_script_process_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

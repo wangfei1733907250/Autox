@@ -1,4 +1,3 @@
-import kotlin.collections.*
 
 plugins {
     id("com.android.application")
@@ -21,7 +20,6 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments["resourcePackageName"] = applicationId.toString()
-                arguments["androidManifestFile"] = "$projectDir/src/main/AndroidManifest.xml"
             }
         }
     }
@@ -31,7 +29,11 @@ android {
         add("ExtraTranslation")
     }
     buildFeatures {
+        compose = true
         buildConfig = true
+    }
+    composeOptions{
+        kotlinCompilerExtensionVersion = compose_version
     }
     compileOptions {
         sourceCompatibility = versions.javaVersion
@@ -129,6 +131,8 @@ android.applicationVariants.all {
 
 
 dependencies {
+    implementation(platform(libs.compose.bom))
+
     implementation(libs.androidx.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)

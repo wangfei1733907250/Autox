@@ -244,9 +244,20 @@ class ApkBuilder(
     private fun copyLibraries(config: ProjectConfig) {
         config.libs.addAllIfNotExist(Constant.Libraries.TERMINAL_EMULATOR)
         config.abis.forEach { abi ->
+            val abiDir = File(nativePath, abi)
+            if (!abiDir.isDirectory) return@forEach
+            if (config.useNodejs) {
+                abiDir.list()?.find {
+                    it.startsWith("libjavet-")
+                }?.let {
+                    File(abiDir, it).copyTo(
+                        File(workspacePath, "lib/$abi/$it"), true
+                    )
+                }
+            }
             config.libs.forEach { name ->
                 kotlin.runCatching {
-                    File(nativePath, "$abi/$name").copyTo(
+                    File(abiDir, name).copyTo(
                         File(workspacePath, "lib/$abi/$name"),
                         overwrite = true
                     )

@@ -6,20 +6,45 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.View
 import android.view.WindowManager
-import android.widget.FrameLayout
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.core.view.ViewCompat
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
-import com.afollestad.materialdialogs.MaterialDialog
+import androidx.preference.PreferenceManager
+import com.aiselp.autox.engine.NodeScriptEngine
+import com.aiselp.autox.ui.material3.components.AlertDialog
+import com.aiselp.autox.ui.material3.components.DialogController
+import com.aiselp.autox.ui.material3.theme.AppTheme
 import com.google.gson.Gson
 import com.stardust.app.GlobalAppContext
 import com.stardust.app.permission.BackgroundStartPermission
@@ -34,6 +59,7 @@ import com.stardust.auojs.inrt.launch.GlobalProjectLauncher
 import com.stardust.autojs.project.ProjectConfig
 import com.stardust.autojs.util.PermissionUtil
 import com.stardust.autojs.util.StoragePermissionResultContract
+import com.stardust.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -45,12 +71,19 @@ import org.autojs.autoxjs.inrt.R
  * Modified by wilinz on 2022/5/23
  */
 
-class SplashActivity : ComponentActivity() {
+class SplashActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "SplashActivity"
     }
 
+    private val appVersionChange by lazy {
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val appVersion = packageManager.getPackageInfo(packageName, 0).versionCode
+        val l = pref.getLong(Pref.KEY_APP_VERSION, -1)
+        pref.edit().putLong(Pref.KEY_APP_VERSION, appVersion.toLong()).apply()
+        appVersion.toLong() != l
+    }
     private val accessibilitySettingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             checkAccessibilityServices()
@@ -60,17 +93,9 @@ class SplashActivity : ComponentActivity() {
     private fun checkAccessibilityServices() {
         if (AccessibilityServiceTool.isAccessibilityServiceEnabled(this)) {
             permissionsResult[Permissions.ACCESSIBILITY_SERVICES] = true
-            Toast.makeText(
-                this,
-                getString(R.string.text_accessibility_service_turned_on),
-                Toast.LENGTH_SHORT
-            ).show()
+            toast(this, getString(R.string.text_accessibility_service_turned_on))
         } else {
-            Toast.makeText(
-                this,
-                getString(R.string.text_accessibility_service_is_not_turned_on),
-                Toast.LENGTH_SHORT
-            ).show()
+            toast(this, getString(R.string.text_accessibility_service_is_not_turned_on))
         }
     }
 
@@ -104,19 +129,19 @@ class SplashActivity : ComponentActivity() {
         if (permissionsResult.all { it.value }) {
             runScript()
         } else {
-            for (entry in permissionsResult) {
-                if (!entry.value) {
-                    when (entry.key) {
+            for ((key, value) in permissionsResult) {
+                if (!value) {
+                    when (key) {
                         Permissions.ACCESSIBILITY_SERVICES -> {
-                            requestAccessibilityService()
+                            lifecycleScope.launch { requestAccessibilityServiceDialog.show() }
                         }
 
                         Permissions.BACKGROUND_START -> {
-                            requestBackgroundStart()
+                            lifecycleScope.launch { requestBackgroundStartDialog.show() }
                         }
 
                         Permissions.DRAW_OVERLAY -> {
-                            requestDrawOverlays()
+                            lifecycleScope.launch { requestDrawOverlaysDialog.show() }
                         }
                     }
                     break
@@ -128,7 +153,55 @@ class SplashActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes = window.attributes.apply {
+                layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+        var slug by mutableStateOf(getString(R.string.powered_by_autojs))
+        setContent {
+            AppTheme(dynamicColor = true) {
+                requestDrawOverlaysDialog.Dialog()
+                requestAccessibilityServiceDialog.Dialog()
+                requestBackgroundStartDialog.Dialog()
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            modifier = Modifier.size(120.dp),
+                            painter = painterResource(R.drawable.autojs_logo),
+                            contentDescription = null
+                        )
+                    }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        Text(
+                            slug,
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily(
+                                Typeface.createFromAsset(assets, "roboto_medium.ttf")
+                            ),
+                            modifier = Modifier.padding(vertical = 12.dp)
+                        )
+                    }
+                }
+            }
+        }
         lifecycleScope.launch {
             projectConfig = withContext(Dispatchers.IO) {
                 ProjectConfig.fromAssets(
@@ -137,15 +210,12 @@ class SplashActivity : ComponentActivity() {
                 )!!
             }
             if (projectConfig.launchConfig.displaySplash) {
-                val frame = findViewById<FrameLayout>(R.id.frame)
-                frame.visibility = View.VISIBLE
+//                val frame = findViewById<FrameLayout>(R.id.frame)
+//                frame.visibility = View.VISIBLE
             }
-            val slug = findViewById<TextView>(R.id.slug)
-            slug.typeface = Typeface.createFromAsset(assets, "roboto_medium.ttf")
             Log.d(TAG, "onCreate: ${Gson().toJson(projectConfig)}")
-            slug.text = projectConfig.launchConfig.splashText
-            if (Pref.getHost("d") == "d") { //非第一次运行
-                Pref.setHost("112.74.161.35")
+            slug = projectConfig.launchConfig.splashText
+            if (appVersionChange) { //非第一次运行
                 projectConfig.launchConfig.let {
                     Pref.setHideLogs(it.isHideLogs)
                     Pref.setStableMode(it.isStableMode)
@@ -154,30 +224,15 @@ class SplashActivity : ComponentActivity() {
                 }
 
             }
+            val initModuleResource = launch(Dispatchers.IO) {
+                NodeScriptEngine.initModuleResource(this@SplashActivity, appVersionChange)
+            }
             if (projectConfig.launchConfig.displaySplash) {
                 delay(1000)
             }
+            initModuleResource.join()
             readSpecialPermissionConfiguration()
             requestExternalStoragePermission()
-        }
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                window.attributes = window.attributes.apply {
-                    layoutInDisplayCutoutMode =
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                }
-            }
-
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            val controller = ViewCompat.getWindowInsetsController(window.decorView)
-            controller?.hide(WindowInsetsCompat.Type.systemBars())
-            controller?.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-
         }
     }
 
@@ -207,72 +262,86 @@ class SplashActivity : ComponentActivity() {
         } else checkSpecialPermissions()
     }
 
-    private fun requestDrawOverlays() {
-        val dialog =
-            MaterialDialog.Builder(this)
-                .title(getString(R.string.text_required_floating_window_permission))
-                .content(getString(R.string.text_required_floating_window_permission))//内容
-                .positiveText(getString(R.string.text_to_open)) //肯定按键
-                .negativeText(getString(R.string.text_cancel))
-                .onPositive { dialog, _ ->
-                    dialog.dismiss()
-                    drawOverlaysSettingsLauncher.launchCanDrawOverlaysSettings(packageName)
-                }.onNegative { _, _ ->
-                    finish()
-                }
-                .canceledOnTouchOutside(false)
-                .build()
-        dialog.show()
+    private val requestDrawOverlaysDialog = object : DialogController() {
+        override val properties: DialogProperties = DialogProperties(
+            dismissOnClickOutside = false,
+            dismissOnBackPress = false,
+        )
+
+        override fun onPositiveClick() {
+            showState = false
+            drawOverlaysSettingsLauncher.launchCanDrawOverlaysSettings(packageName)
+        }
+
+        @Composable
+        fun Dialog() {
+            AlertDialog(
+                title = stringResource(R.string.text_required_floating_window_permission),
+                content = stringResource(R.string.text_required_floating_window_permission),
+                positiveText = stringResource(R.string.text_to_open),
+                negativeText = stringResource(R.string.text_cancel),
+                onNegativeClick = { finish() }
+            )
+        }
     }
 
-    private fun requestBackgroundStart() {
-        val dialog = MaterialDialog.Builder(this)
-            .title(getString(R.string.text_requires_background_start))
-            .content(getString(R.string.text_requires_background_start_desc))
-            .positiveText(getString(R.string.text_to_open)) //肯定按键
-            .negativeText(getString(R.string.text_cancel))
-            .onPositive { dialog, _ ->
-                dialog.dismiss()
-                backgroundStartSettingsLauncher.launchAppPermissionsSettings(packageName)
-            }
-            .onNegative { _, _ ->
-                finish()
-            }
-            .canceledOnTouchOutside(false)
-            .build()
-        dialog.show()
+    private val requestBackgroundStartDialog = object : DialogController() {
+        override val properties: DialogProperties = DialogProperties(
+            dismissOnClickOutside = false,
+            dismissOnBackPress = false
+        )
+
+        @Composable
+        fun Dialog() {
+            AlertDialog(
+                title = stringResource(R.string.text_requires_background_start),
+                content = stringResource(R.string.text_requires_background_start_desc),
+                positiveText = stringResource(R.string.text_to_open),
+                onPositiveClick = {
+                    showState = false
+                    backgroundStartSettingsLauncher.launchAppPermissionsSettings(packageName)
+                },
+                negativeText = stringResource(R.string.text_cancel),
+                onNegativeClick = { finish() }
+            )
+        }
     }
 
-    private fun requestAccessibilityService() {
-        lifecycleScope.launch {
+    private val requestAccessibilityServiceDialog = object : DialogController() {
+        override val properties = DialogProperties(
+            dismissOnClickOutside = false,
+            dismissOnBackPress = false
+        )
+
+        override suspend fun show() {
             val enabled = withContext(Dispatchers.IO) {
                 AccessibilityServiceTool1.enableAccessibilityServiceByRootAndWaitFor(2000)
             }
             if (enabled) {
                 permissionsResult[Permissions.ACCESSIBILITY_SERVICES] = true
-                Toast.makeText(
-                    this@SplashActivity,
-                    getString(R.string.text_accessibility_service_turned_on),
-                    Toast.LENGTH_SHORT
-                ).show()
+                toast(this@SplashActivity, R.string.text_accessibility_service_turned_on)
                 checkSpecialPermissions()
-                return@launch
+                return
             }
-            val dialog = MaterialDialog.Builder(this@SplashActivity)
-                .title(R.string.text_need_to_enable_accessibility_service)
-                .content(R.string.explain_accessibility_permission, GlobalAppContext.appName)
-                .positiveText(getString(R.string.text_to_open)) //肯定按键
-                .negativeText(getString(R.string.text_cancel))
-                .onPositive { dialog, _ ->
-                    dialog.dismiss()
+            super.show()
+        }
+
+        @Composable
+        fun Dialog() {
+            AlertDialog(
+                title = stringResource(R.string.text_need_to_enable_accessibility_service),
+                content = stringResource(
+                    R.string.explain_accessibility_permission,
+                    GlobalAppContext.appName
+                ),
+                positiveText = stringResource(R.string.text_to_open),
+                onPositiveClick = {
+                    showState = false
                     accessibilitySettingsLauncher.launch(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                }
-                .onNegative { _, _ ->
-                    finish()
-                }
-                .canceledOnTouchOutside(false)
-                .build()
-            dialog.show()
+                },
+                negativeText = stringResource(R.string.text_cancel),
+                onNegativeClick = { finish() }
+            )
         }
     }
 

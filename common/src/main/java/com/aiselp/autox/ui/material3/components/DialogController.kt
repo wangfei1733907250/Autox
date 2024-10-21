@@ -30,14 +30,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 open class DialogController(
-    val properties: DialogProperties = DialogProperties(),
+    open val properties: DialogProperties = DialogProperties(),
     initShow: Boolean = false,
 ) {
     var showState by mutableStateOf(initShow)
         protected set
 
     open fun onShow() {}
-    suspend fun show() = withContext(Dispatchers.Main) {
+    open suspend fun show() = withContext(Dispatchers.Main) {
         showState = true
         onShow()
     }
@@ -47,7 +47,7 @@ open class DialogController(
     open fun onNeutralClick() {}
 
     open fun onDismiss() {}
-    suspend fun dismiss() = withContext(Dispatchers.Main) {
+    open suspend fun dismiss() = withContext(Dispatchers.Main) {
         showState = false
         onDismiss()
     }

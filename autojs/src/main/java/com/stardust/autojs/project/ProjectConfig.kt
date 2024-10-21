@@ -29,6 +29,7 @@ data class ProjectConfig(
     @SerializedName("useFeatures")
     var features: ArrayList<String> = arrayListOf(),
     var sourcePath: String? = null,
+    var useNodejs: Boolean = false,
     var projectDirectory: String? = null,
     var outputPath: String? = null,
     val buildDir: String = "build",
