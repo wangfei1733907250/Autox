@@ -2,7 +2,6 @@ package org.autojs.autojs.ui.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.webkit.WebSettings
@@ -27,7 +26,10 @@ class SwipeRefreshWebView : ThemeColorSwipeRefreshLayout {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK &&
+            event.action == KeyEvent.ACTION_UP &&
+            webView.canGoBack()
+        ) {
             webView.goBack()
             return true
         }
@@ -39,9 +41,6 @@ class SwipeRefreshWebView : ThemeColorSwipeRefreshLayout {
         settings.apply {
             javaScriptEnabled = true  //设置支持Javascript交互
             javaScriptCanOpenWindowsAutomatically = true //支持通过JS打开新窗口
-            allowFileAccess = true //设置可以访问文件
-            allowFileAccessFromFileURLs = true;
-            allowUniversalAccessFromFileURLs = true;
             allowContentAccess = true;
             defaultTextEncodingName = "utf-8"//设置编码格式
             setSupportMultipleWindows(false)
@@ -58,14 +57,10 @@ class SwipeRefreshWebView : ThemeColorSwipeRefreshLayout {
             saveFormData = true;
             domStorageEnabled = true
             databaseEnabled = true   //开启 database storage API 功能
-            pluginState = WebSettings.PluginState.ON
-            if (Build.VERSION.SDK_INT >= 26) {
-                safeBrowsingEnabled = false
-            }
+            safeBrowsingEnabled = false
             mediaPlaybackRequiresUserGesture = false;
             // 5.0以上允许加载http和https混合的页面(5.0以下默认允许，5.0+默认禁止)
-            mixedContentMode =
-                WebSettings.MIXED_CONTENT_ALWAYS_ALLOW;
+            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW;
         }
     }
 
