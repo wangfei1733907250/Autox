@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aiselp.autox.api.ui.ComposeElement
 
-object Divider : VueNativeComponent {
+internal object Divider : VueNativeComponent {
     override val tag: String = "Divider"
 
     @Composable

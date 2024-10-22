@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.RenderColumn
 
-object ModalBottomSheet : VueNativeComponent {
+internal object ModalBottomSheet : VueNativeComponent {
     override val tag: String = "ModalBottomSheet"
 
     @OptIn(ExperimentalMaterial3Api::class)

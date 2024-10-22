@@ -8,7 +8,7 @@ import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.Render
 import com.aiselp.autox.api.ui.RenderColumn
 
-object ExposedDropdownMenuBox : VueNativeComponent {
+internal object ExposedDropdownMenuBox : VueNativeComponent {
     override val tag: String = "ExposedDropdownMenuBox"
 
     @OptIn(ExperimentalMaterial3Api::class)

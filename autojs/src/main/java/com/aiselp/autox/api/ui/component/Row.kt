@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.RenderRow
 
-object Row : VueNativeComponent {
+internal object Row : VueNativeComponent {
     override val tag: String = "row"
 
     @Composable

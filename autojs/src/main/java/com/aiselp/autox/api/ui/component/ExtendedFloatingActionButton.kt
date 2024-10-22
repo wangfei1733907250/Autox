@@ -7,7 +7,7 @@ import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.ComposeTextNode
 import com.aiselp.autox.api.ui.Render
 
-object ExtendedFloatingActionButton : VueNativeComponent {
+internal object ExtendedFloatingActionButton : VueNativeComponent {
     override val tag: String = "ExtendedFloatingActionButton"
 
     @Composable

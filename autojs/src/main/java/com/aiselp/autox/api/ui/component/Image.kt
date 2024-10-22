@@ -11,7 +11,7 @@ import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import com.aiselp.autox.api.ui.ComposeElement
 
-object Image : VueNativeComponent {
+internal object Image : VueNativeComponent {
     override val tag: String = "Image"
 
     @Composable

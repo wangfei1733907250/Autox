@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.aiselp.autox.api.ui.ComposeElement
 
-object TimePicker : VueNativeComponent {
+internal object TimePicker : VueNativeComponent {
 
     override val tag: String = "TimePicker"
 

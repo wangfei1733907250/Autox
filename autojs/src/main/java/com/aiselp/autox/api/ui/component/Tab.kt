@@ -10,7 +10,7 @@ import com.aiselp.autox.api.ui.ComposeTextNode
 import com.aiselp.autox.api.ui.Render
 import com.aiselp.autox.api.ui.RenderColumn
 
-object Tab : VueNativeComponent {
+internal object Tab : VueNativeComponent {
     override val tag: String = "Tab"
 
     @Composable

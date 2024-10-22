@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 
-object Slider : VueNativeComponent {
+internal object Slider : VueNativeComponent {
     override val tag: String = "Slider"
 
     @OptIn(ExperimentalMaterial3Api::class)

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 
-object RadioButton : VueNativeComponent {
+internal object RadioButton : VueNativeComponent {
     override val tag: String = "RadioButton"
 
     @Composable

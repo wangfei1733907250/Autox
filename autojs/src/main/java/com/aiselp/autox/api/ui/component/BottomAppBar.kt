@@ -7,7 +7,7 @@ import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.Render
 import com.aiselp.autox.api.ui.RenderRow
 
-object BottomAppBar : VueNativeComponent {
+internal object BottomAppBar : VueNativeComponent {
     override val tag: String = "BottomAppBar"
 
     @Composable

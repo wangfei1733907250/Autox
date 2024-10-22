@@ -6,7 +6,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.aiselp.autox.api.ui.ComposeElement
 
-object Dialog : VueNativeComponent {
+internal object Dialog : VueNativeComponent {
 
     override val tag: String = "Dialog"
 

@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.Render
 
-object FloatingActionButton : VueNativeComponent {
+internal object FloatingActionButton : VueNativeComponent {
     override val tag: String = "FloatingActionButton"
 
     @Composable

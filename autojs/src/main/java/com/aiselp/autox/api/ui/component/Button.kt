@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.RenderRow
 
-object Button : VueNativeComponent {
+internal object Button : VueNativeComponent {
     override val tag: String = "Button"
 
     @Composable

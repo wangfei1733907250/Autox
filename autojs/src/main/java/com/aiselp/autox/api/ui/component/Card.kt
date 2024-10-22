@@ -10,7 +10,7 @@ import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.RenderColumn
 import com.aiselp.autox.engine.EventLoopQueue
 
-object Card : VueNativeComponent {
+internal object Card : VueNativeComponent {
     override val tag: String = "card"
 
     @Composable

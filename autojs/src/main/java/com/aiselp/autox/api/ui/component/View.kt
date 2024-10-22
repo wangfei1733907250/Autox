@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.aiselp.autox.api.ui.ComposeElement
 
-object View : VueNativeComponent {
+internal object View : VueNativeComponent {
     override val tag: String = "View"
 
     @Composable

@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aiselp.autox.api.ui.ComposeElement
 
-object ProgressIndicator : VueNativeComponent {
+internal object ProgressIndicator : VueNativeComponent {
     override val tag: String = "ProgressIndicator"
 
     @Composable

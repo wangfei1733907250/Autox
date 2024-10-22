@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.RenderRow
 
-object FlowRow : VueNativeComponent {
+internal object FlowRow : VueNativeComponent {
     override val tag: String = "FlowRow"
 
     @OptIn(ExperimentalLayoutApi::class)

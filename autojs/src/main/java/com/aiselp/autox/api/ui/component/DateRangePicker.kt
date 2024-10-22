@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.Render
 
-object DateRangePicker : VueNativeComponent {
+internal object DateRangePicker : VueNativeComponent {
     override val tag: String = "DateRangePicker"
 
     @OptIn(ExperimentalMaterial3Api::class)

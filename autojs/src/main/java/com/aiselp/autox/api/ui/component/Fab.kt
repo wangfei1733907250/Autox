@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 
-object Fab : VueNativeComponent {
+internal object Fab : VueNativeComponent {
     override val tag: String = "Fab"
 
     @Composable

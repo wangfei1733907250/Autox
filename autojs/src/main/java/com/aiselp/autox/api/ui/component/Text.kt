@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.ComposeTextNode
 
-object Text : VueNativeComponent {
+internal object Text : VueNativeComponent {
     override val tag: String = "text"
 
     @Composable

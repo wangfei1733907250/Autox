@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.Render
 
-object NavigationBar : VueNativeComponent {
+internal object NavigationBar : VueNativeComponent {
     override val tag: String = "NavigationBar"
 
     @Composable
