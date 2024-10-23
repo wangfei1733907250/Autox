@@ -149,5 +149,4 @@ dependencies {
     implementation(project(":automator"))
     implementation(project(":common"))
     implementation(project(":autojs"))
-    implementation("androidx.multidex:multidex:2.0.1")
 }

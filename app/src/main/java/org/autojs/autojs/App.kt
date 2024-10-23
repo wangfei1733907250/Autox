@@ -1,6 +1,7 @@
 package org.autojs.autojs
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.app.LocaleManager
 import android.content.Intent
 import android.os.Build
@@ -13,7 +14,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
 import com.aiselp.autox.engine.NodeScriptEngine.Companion.initModuleResource
 import com.flurry.android.FlurryAgent
@@ -40,7 +40,7 @@ import java.lang.ref.WeakReference
  * Created by Stardust on 2017/1/27.
  */
 
-class App : MultiDexApplication(), Configuration.Provider {
+class App : Application(), Configuration.Provider {
     lateinit var dynamicBroadcastReceivers: DynamicBroadcastReceivers
         private set
 

@@ -241,7 +241,6 @@ dependencies {
     implementation(project(":autojs"))
     implementation(project(":apkbuilder"))
     implementation(project(":codeeditor"))
-    implementation("androidx.multidex:multidex:2.0.1")
 
     // ViewModel
     implementation(libs.lifecycle.viewmodel.ktx)

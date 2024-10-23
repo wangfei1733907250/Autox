@@ -11,6 +11,7 @@ android {
     defaultConfig {
         minSdk = versions.mini
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("int", "MIN_SDK_VERSION", versions.mini.toString())
     }
 
     buildTypes {
@@ -82,13 +83,13 @@ dependencies {
     api(project(path = ":LocalRepo:OpenCV"))
     api(project(":paddleocr"))
     // libs
-    api(fileTree("./libs") { include("dx.jar", "rhino-1.7.14-jdk7.jar") })
+    api(fileTree("./libs") { include("dx.jar", "d8.jar", "rhino-1.7.14-jdk7.jar") })
     implementation("cz.adaptech:tesseract4android:4.1.1")
     implementation(libs.bundles.mlkit)
 }
 
 tasks.register("buildJsModule") {
-    val jsApiDir= File(projectDir, "src/js-api")
+    val jsApiDir = File(projectDir, "src/js-api")
     val jsModuleDir = File(projectDir, "src/main/assets/v7modules")
     doFirst {
         exec {
