@@ -16,6 +16,7 @@ import com.stardust.autojs.runtime.api.Events
 import com.stardust.autojs.runtime.api.Sensors
 import com.stardust.autojs.runtime.api.Threads
 import com.stardust.autojs.runtime.api.Timers
+import com.stardust.autojs.util.ObjectWatcher
 import com.stardust.pio.UncheckedIOException
 import com.stardust.util.ClipboardUtil
 import com.stardust.util.Supplier
@@ -113,7 +114,7 @@ class ScriptRuntimeV2(val builder: Builder) : ScriptRuntime(builder) {
     override fun onExit() {
         super.onExit()
         consoleExtension.close()
-//        ObjectWatcher.default.watch(this, engines.myEngine().toString() + "::" + TAG)
+        ObjectWatcher.default.watch(this, engines.myEngine().toString() + "::" + TAG)
     }
 
     class Builder {
