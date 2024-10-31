@@ -62,6 +62,7 @@ abstract class AutoJs protected constructor(protected val application: Applicati
 
     init {
         ObjectWatcher.init(application)
+        ScreenMetrics.initIfNeeded(application)
         MlKit.initialize(application)
         scriptEngineService = buildScriptEngineService()
         ScriptEngineService.instance = scriptEngineService
@@ -140,7 +141,6 @@ abstract class AutoJs protected constructor(protected val application: Applicati
     private fun registerActivityLifecycleCallbacks() {
         application.registerActivityLifecycleCallbacks(object : SimpleActivityLifecycleCallbacks() {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                ScreenMetrics.initIfNeeded(activity)
                 appUtils.currentActivity = activity
             }
 

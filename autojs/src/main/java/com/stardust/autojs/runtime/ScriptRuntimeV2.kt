@@ -17,13 +17,11 @@ import com.stardust.autojs.runtime.api.Sensors
 import com.stardust.autojs.runtime.api.Threads
 import com.stardust.autojs.runtime.api.Timers
 import com.stardust.autojs.util.ObjectWatcher
+import com.stardust.autojs.util.runOnUiThread
 import com.stardust.pio.UncheckedIOException
 import com.stardust.util.ClipboardUtil
 import com.stardust.util.Supplier
 import com.stardust.util.UiHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.mozilla.javascript.ContextFactory
 import org.mozilla.javascript.RhinoException
 import java.io.BufferedReader
@@ -58,17 +56,13 @@ class ScriptRuntimeV2(val builder: Builder) : ScriptRuntime(builder) {
     }
 
     @ScriptInterface
-    fun setClip(text: String): Unit = runBlocking {
-        withContext(Dispatchers.Main) {
-            ClipboardUtil.setClip(uiHandler.context, text)
-        }
+    fun setClip(text: String): Unit = runOnUiThread {
+        ClipboardUtil.setClip(uiHandler.context, text)
     }
 
     @ScriptInterface
-    fun getClip(): String = runBlocking {
-        withContext(Dispatchers.Main) {
-            ClipboardUtil.getClipOrEmpty(uiHandler.context).toString()
-        }
+    fun getClip(): String = runOnUiThread {
+        ClipboardUtil.getClipOrEmpty(uiHandler.context).toString()
     }
 
     @ScriptInterface
