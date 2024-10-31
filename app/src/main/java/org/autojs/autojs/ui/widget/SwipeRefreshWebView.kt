@@ -6,9 +6,9 @@ import android.util.AttributeSet
 import android.view.KeyEvent
 import android.webkit.WebSettings
 import android.webkit.WebView
-import org.autojs.autojs.theme.widget.ThemeColorSwipeRefreshLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
-class SwipeRefreshWebView : ThemeColorSwipeRefreshLayout {
+class SwipeRefreshWebView : SwipeRefreshLayout {
 
     val webView = WebView(context)
 

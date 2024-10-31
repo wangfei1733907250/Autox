@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.ThemeColorRecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder
@@ -41,7 +41,7 @@ import org.autojs.autoxjs.R
 /**
  * Created by Stardust on 2017/3/24.
  */
-class TaskListRecyclerView : ThemeColorRecyclerView {
+class TaskListRecyclerView : RecyclerView {
     private val mRunningTaskGroup: RunningTaskGroup = RunningTaskGroup(context)
     private val mPendingTaskGroup: PendingTaskGroup = PendingTaskGroup(context)
     private val mTaskGroups: MutableList<TaskGroup> =
@@ -71,9 +71,9 @@ class TaskListRecyclerView : ThemeColorRecyclerView {
             }
         }
 
-    constructor(context: Context?) : super(context)
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) :
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) :
             super(context, attrs, defStyle)
 
     init {

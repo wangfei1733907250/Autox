@@ -7,24 +7,32 @@ import android.view.ViewGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
-import org.autojs.autojs.theme.widget.ThemeColorSwipeRefreshLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.aiselp.autox.ui.material3.MainFloatingActionButton
+import com.stardust.autojs.servicecomponents.EngineController
 import org.autojs.autojs.ui.widget.fillMaxSize
+import org.autojs.autoxjs.R
 
 class TaskManagerFragmentKt : Fragment() {
 
-    private val taskListRecyclerView: TaskListRecyclerView by lazy {
+    private val taskListRecyclerView by lazy {
         TaskListRecyclerView(
             requireContext()
         ).apply { fillMaxSize() }
     }
     private val swipeRefreshLayout by lazy {
-        ThemeColorSwipeRefreshLayout(requireContext()).apply {
+        SwipeRefreshLayout(requireContext()).apply {
             fillMaxSize()
             addView(taskListRecyclerView)
         }
@@ -45,17 +53,16 @@ class TaskManagerFragmentKt : Fragment() {
 
     @Composable
     private fun Content() {
-//        var noRunningScript by remember {
-//            mutableStateOf((taskListRecyclerView.adapter?.itemCount ?: 0) <= 0)
-//        }
+        val context = LocalContext.current
         Scaffold(
             floatingActionButton = {
-//                FloatingActionButton(onClick = { AutoJs.getInstance().scriptEngineService.stopAll() }) {
-//                    Icon(
-//                        imageVector = Icons.Default.Clear,
-//                        contentDescription = stringResource(id = R.string.text_clear),
-//                    )
-//                }
+                MainFloatingActionButton(
+                    onClick = { EngineController.stopAllScript() }) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = stringResource(id = R.string.text_clear),
+                    )
+                }
             },
         ) {
             Box(

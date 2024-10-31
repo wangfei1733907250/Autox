@@ -2,16 +2,16 @@ package org.autojs.autojs.ui.main.components
 
 import android.webkit.WebView
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,47 +52,64 @@ fun DocumentPageMenuButton(getWebView: () -> WebView) {
         IconButton({ expanded = true }) {
             Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
         }
+        val iconModifier = Modifier.size(24.dp)
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(onClick = {
-                dismissMenu()
-                loadHomeDocument(getWebView())
-            }) {
-                Icon(Icons.Default.Home, contentDescription = null)
-                Text(text = "回到主页")
-            }
-            DropdownMenuItem(onClick = {
-                dismissMenu()
-                openDocument(context)
-            }) {
-                Icon(
-                    painterResource(id = R.drawable.ic_external_link),
-                    contentDescription = null
-                )
-                Text(text = stringResource(id = R.string.text_browser_open))
-            }
-            DropdownMenuItem(onClick = {
-                dismissMenu()
-                getWebView().clearCache(false)
-                getWebView().reload()
-            }) {
-                Icon(Icons.Default.Refresh, contentDescription = null)
-                Text(text = "刷新")
-            }
-            DropdownMenuItem(onClick = {
-                dismissMenu()
-                DocumentSourceSelectDialog(getWebView()).show()
-            }) {
-                Box(Modifier.width(20.dp)) {
+            DropdownMenuItem(
+                text = { Text(text = "回到主页") },
+                leadingIcon = {
                     Icon(
-                        painterResource(id = R.drawable.community_list),
+                        modifier = iconModifier,
+                        imageVector = Icons.Default.Home,
                         contentDescription = null
                     )
+                },
+                onClick = {
+                    dismissMenu()
+                    loadHomeDocument(getWebView())
                 }
-
-                Text(text = "选择文档源")
-            }
+            )
+            DropdownMenuItem(
+                text = { Text(text = stringResource(id = R.string.text_browser_open)) },
+                leadingIcon = {
+                    Icon(
+                        painterResource(id = R.drawable.ic_external_link),
+                        modifier = iconModifier,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    dismissMenu()
+                    openDocument(context)
+                })
+            DropdownMenuItem(
+                text = { Text(text = "刷新") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Refresh,
+                        modifier = iconModifier,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    dismissMenu()
+                    getWebView().clearCache(false)
+                    getWebView().reload()
+                })
+            DropdownMenuItem(
+                text = { Text(text = "选择文档源") },
+                leadingIcon = {
+                    Icon(
+                        painterResource(id = R.drawable.community_list),
+                        modifier = iconModifier,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    dismissMenu()
+                    DocumentSourceSelectDialog(getWebView()).show()
+                })
         }
     }
 }
