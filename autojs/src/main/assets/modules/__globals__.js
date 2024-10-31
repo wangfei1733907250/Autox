@@ -76,7 +76,11 @@ module.exports = function (runtime, global) {
         if (arguments.length == 0) {
             return Math.random();
         }
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+        if (!(Number.isInteger(min) && Number.isInteger(max))) {
+            throw RangeError("此函数取整数随机数，不支持非整数")
+        }
+
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 
     global.setScreenMetrics = runtime.setScreenMetrics.bind(runtime);
