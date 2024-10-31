@@ -181,7 +181,7 @@ open class ErrorReportActivity : AppCompatActivity() {
                     return@setDefaultUncaughtExceptionHandler
                 }
                 val intent = Intent(app, ErrorReportActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                     putExtra("message", e.message)
                     putExtra("error", e.stackTraceToString())
                     putExtra("mainActivity", mainActivityClassName)

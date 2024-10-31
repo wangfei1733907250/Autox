@@ -73,11 +73,9 @@ class ScriptRuntimeV2(val builder: Builder) : ScriptRuntime(builder) {
 
     @ScriptInterface
     fun loadJar(path: String) {
-        var path = path
-        path = files.path(path)
         try {
             (ContextFactory.getGlobal().applicationClassLoader as AndroidClassLoader).loadJar(
-                File(path)
+                File(files.path(path))
             )
         } catch (e: IOException) {
             throw UncheckedIOException(e)
@@ -86,11 +84,9 @@ class ScriptRuntimeV2(val builder: Builder) : ScriptRuntime(builder) {
 
     @ScriptInterface
     fun loadDex(path: String) {
-        var path = path
-        path = files.path(path)
         try {
             (ContextFactory.getGlobal().applicationClassLoader as AndroidClassLoader).loadDex(
-                File(path)
+                File(files.path(path))
             )
         } catch (e: IOException) {
             throw UncheckedIOException(e)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
+import android.util.SparseIntArray
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +21,6 @@ import com.stardust.autojs.R
 import com.stardust.autojs.core.console.ConsoleImpl.LogListener
 import com.stardust.enhancedfloaty.ResizableExpandableFloatyWindow
 import com.stardust.util.MapBuilder
-import com.stardust.util.SparseArrayEntries
 import com.stardust.util.ViewUtils
 
 /**
@@ -30,7 +30,14 @@ import com.stardust.util.ViewUtils
  * TODO: 优化为无锁形式
  */
 class ConsoleView : FrameLayout, LogListener {
-    val colors = COLORS.clone()
+    private val colors = SparseIntArray().apply {
+        put(Log.VERBOSE, context.getColor(R.color.console_verbose))
+        put(Log.DEBUG, context.getColor(R.color.console_debug))
+        put(Log.INFO, -0x9b22e9)
+        put(Log.WARN, -0xd69d01)
+        put(Log.ERROR, -0x2b0000)
+        put(Log.ASSERT, -0xacb2)
+    }
     private var mConsole: ConsoleImpl? = null
     private lateinit var mLogListRecyclerView: RecyclerView
     private lateinit var mEditText: EditText
@@ -228,14 +235,6 @@ class ConsoleView : FrameLayout, LogListener {
             .put(R.styleable.ConsoleView_color_error, Log.ERROR)
             .put(R.styleable.ConsoleView_color_assert, Log.ASSERT)
             .build()
-        val COLORS = SparseArrayEntries<Int>()
-            .entry(Log.VERBOSE, -0x203f3f40)
-            .entry(Log.DEBUG, -0x20000001)
-            .entry(Log.INFO, -0x9b22e9)
-            .entry(Log.WARN, -0xd69d01)
-            .entry(Log.ERROR, -0x2b0000)
-            .entry(Log.ASSERT, -0xacb2)
-            .sparseArray()
         private const val REFRESH_INTERVAL = 100L
     }
 }
