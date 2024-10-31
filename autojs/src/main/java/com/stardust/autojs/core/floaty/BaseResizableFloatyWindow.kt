@@ -7,8 +7,11 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import com.stardust.autojs.R
-import com.stardust.enhancedfloaty.*
-
+import com.stardust.enhancedfloaty.FloatyService
+import com.stardust.enhancedfloaty.FloatyWindow
+import com.stardust.enhancedfloaty.ResizableFloaty
+import com.stardust.enhancedfloaty.ResizableFloatyWindow
+import com.stardust.enhancedfloaty.WindowBridge
 import com.stardust.enhancedfloaty.WindowBridge.DefaultImpl
 import com.stardust.enhancedfloaty.gesture.DragGesture
 import com.stardust.enhancedfloaty.gesture.ResizeGesture
@@ -17,7 +20,7 @@ import com.stardust.lib.R.layout
 
 
 class BaseResizableFloatyWindow(context: Context, viewSupplier: ViewSupplier) : FloatyWindow() {
-    interface ViewSupplier {
+    fun interface ViewSupplier {
         fun inflate(context: Context?, parent: ViewGroup?): View
     }
 
@@ -25,13 +28,11 @@ class BaseResizableFloatyWindow(context: Context, viewSupplier: ViewSupplier) : 
         private set
     private var mResizer: View? = null
     private var mMoveCursor: View? = null
-    private val mFloaty: MyFloaty
+    private val mFloaty: MyFloaty = MyFloaty(context, viewSupplier)
     private var mCloseButton: View? = null
-    private val mOffset: Int
+    private val mOffset: Int = context.resources.getDimensionPixelSize(R.dimen.floaty_window_offset)
 
     init {
-        mFloaty = MyFloaty(context, viewSupplier)
-        mOffset = context.resources.getDimensionPixelSize(R.dimen.floaty_window_offset)
         val layoutParams = createWindowLayoutParams()
         val windowView =
             View.inflate(context, layout.ef_floaty_container, null as ViewGroup?) as ViewGroup

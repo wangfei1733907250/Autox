@@ -83,6 +83,9 @@
             android:exported="false"
             android:foregroundServiceType="mediaProjection"
             android:process="@string/text_script_process_name" />
+        <service
+            android:name="com.stardust.enhancedfloaty.FloatyService"
+            android:process="@string/text_script_process_name" />
 
     </application>
 
