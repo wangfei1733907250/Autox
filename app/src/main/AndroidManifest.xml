@@ -166,9 +166,6 @@
             android:name="org.autojs.autojs.ui.settings.SettingsActivity"
             android:theme="@style/M3AppTheme" />
         <activity
-            android:name="org.autojs.autojs.ui.error.ErrorReportActivity"
-            android:theme="@style/M3AppTheme" />
-        <activity
             android:name="org.autojs.autojs.external.tasker.TaskerScriptEditActivity"
             android:configChanges="orientation|screenSize" />
         <activity
@@ -353,8 +350,8 @@
         </receiver>
         <receiver
             android:name="org.autojs.autojs.timing.TaskReceiver"
-            android:process="@string/text_script_process_name"
-            android:exported="false">
+            android:exported="false"
+            android:process="@string/text_script_process_name">
             <intent-filter>
                 <action android:name="com.stardust.autojs.action.task" />
             </intent-filter>

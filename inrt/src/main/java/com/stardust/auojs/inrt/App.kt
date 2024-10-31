@@ -9,6 +9,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
+import com.aiselp.autox.ui.material3.activity.ErrorReportActivity
 import com.fanjun.keeplive.KeepLive
 import com.fanjun.keeplive.config.ForegroundNotification
 import com.linsh.utilseverywhere.Utils
@@ -36,6 +37,7 @@ class App : Application() {
         AutoJs.initInstance(this)
         GlobalKeyObserver.init()
 
+        ErrorReportActivity.install(this, SplashActivity::class.java)
         //启动保活服务
         KeepLive.useSilenceMusice = false;
         val sharedPreferences =

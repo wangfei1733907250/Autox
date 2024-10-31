@@ -12,7 +12,6 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.stardust.util.ClipboardUtil
 import com.stardust.util.IntentUtil
 import com.stardust.util.IntentUtilKt.launchQQ
-import com.tencent.bugly.crashreport.CrashReport
 import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder
 import org.autojs.autojs.tool.IntentTool
 import org.autojs.autoxjs.R
@@ -89,7 +88,9 @@ open class AboutActivity : AppCompatActivity() {
 
     private fun crashTest() {
         ThemeColorMaterialDialogBuilder(this).title("Crash Test").positiveText("Crash")
-            .onPositive { dialog: MaterialDialog?, which: DialogAction? -> CrashReport.testJavaCrash() }
+            .onPositive { _: MaterialDialog?, _: DialogAction? ->
+                throw RuntimeException("Crash Test")
+            }
             .show()
     }
 

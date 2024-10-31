@@ -35,7 +35,7 @@ android {
     lint.abortOnError = false
     sourceSets {
         getByName("main") {
-            res.srcDirs("src/main/res","src/main/res-i18n")
+            res.srcDirs("src/main/res", "src/main/res-i18n")
         }
     }
     compileOptions {
@@ -54,6 +54,7 @@ dependencies {
     api(libs.compose.material3.window.size)
     api(libs.compose.material3.adaptive.navigation.suite)
     api(libs.androidx.webkit)
+    api(libs.commons.exec)
     api("com.github.hyb1996:settingscompat:1.1.5")
     implementation(libs.androidx.activity.ktx)
     implementation(libs.appcompat)
