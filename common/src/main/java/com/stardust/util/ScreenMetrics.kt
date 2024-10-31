@@ -2,6 +2,8 @@ package com.stardust.util
 
 import android.content.Context
 import android.content.res.Configuration
+import android.util.DisplayMetrics
+import android.view.WindowManager
 
 /**
  * Created by Stardust on 2017/4/26.
@@ -52,10 +54,27 @@ class ScreenMetrics {
 
         fun initIfNeeded(context: Context) {
             if (initialized && deviceScreenHeight != 0) return
+            val metrics = DisplayMetrics()
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            windowManager.getDefaultDisplay().getRealMetrics(metrics)
+            val display = windowManager.getDefaultDisplay()
             val metrics1 = context.resources.displayMetrics
-            deviceScreenHeight = metrics1.heightPixels
-            deviceScreenWidth = metrics1.widthPixels
-            deviceScreenDensity = metrics1.densityDpi
+            deviceScreenHeight = metrics.heightPixels
+            if (deviceScreenHeight == 0) {
+                deviceScreenHeight = display.getHeight()
+            }
+            if (deviceScreenHeight == 0) {
+                deviceScreenHeight = metrics1.heightPixels
+            }
+            deviceScreenWidth = metrics.widthPixels
+            if (deviceScreenWidth == 0) {
+                deviceScreenWidth = display.getWidth()
+            }
+            if (deviceScreenWidth == 0) {
+                deviceScreenWidth = metrics1.widthPixels
+            }
+            deviceScreenDensity = metrics.densityDpi
+
             initialized = true
         }
 
