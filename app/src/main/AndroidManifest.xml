@@ -216,6 +216,7 @@
         <service
             android:name="org.autojs.autojs.external.tile.LayoutBoundsTile"
             android:exported="true"
+            android:process="@string/text_script_process_name"
             android:icon="@drawable/ic_circular_menu_bounds"
             android:label="@string/text_inspect_layout_bounds"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
@@ -230,6 +231,7 @@
         <service
             android:name="org.autojs.autojs.external.tile.LayoutHierarchyTile"
             android:exported="true"
+            android:process="@string/text_script_process_name"
             android:icon="@drawable/ic_circular_menu_hierarchy"
             android:label="@string/text_inspect_layout_hierarchy"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
