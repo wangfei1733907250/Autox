@@ -30,7 +30,7 @@ import com.stardust.util.ViewUtils
  * TODO: 优化为无锁形式
  */
 class ConsoleView : FrameLayout, LogListener {
-    private val colors = SparseIntArray().apply {
+    val colors = SparseIntArray().apply {
         put(Log.VERBOSE, context.getColor(R.color.console_verbose))
         put(Log.DEBUG, context.getColor(R.color.console_debug))
         put(Log.INFO, -0x9b22e9)

@@ -2,14 +2,12 @@ package com.aiselp.autox.ui.material3
 
 import android.content.Intent
 import android.os.Build
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -72,20 +70,18 @@ fun BottomBar(
     currentSelected: Int,
     onSelectedChange: (Int) -> Unit
 ) {
-    Surface {
-        NavigationBar {
-            items.forEachIndexed { i, item ->
-                NavigationBarItem(
-                    selected = i == currentSelected,
-                    onClick = { onSelectedChange(i) },
-                    label = { Text(text = item.label) },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = item.icon),
-                            contentDescription = item.label
-                        )
-                    })
-            }
+    NavigationBar {
+        items.forEachIndexed { i, item ->
+            NavigationBarItem(
+                selected = i == currentSelected,
+                onClick = { onSelectedChange(i) },
+                label = { Text(text = item.label) },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = item.icon),
+                        contentDescription = item.label
+                    )
+                })
         }
     }
 }
