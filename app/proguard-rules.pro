@@ -71,9 +71,6 @@
    *** get*();
 }
 
--keep class * extends android.support.v4.app.Fragment {
-    <methods>;
-}
 
 -keepclassmembers class * extends android.app.Activity {
    public void *(android.view.View);
@@ -113,19 +110,6 @@
 -keepclasseswithmembers class * {
 	public <init>(android.content.Context, android.util.AttributeSet, int);
 }
-# Google Play Services library
--keep class * extends java.util.ListResourceBundle {
-    protected Object[][] getContents();
-}
-
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
--keepnames @com.google.android.gms.common.annotation.KeepName class *
--keepclassmembernames class * {
-    @com.google.android.gms.common.annotation.KeepName *;
-}
 
 -keepnames class * implements android.os.Parcelable {
     public static final ** CREATOR;
@@ -142,15 +126,6 @@
 -keep public class com.tencent.bugly.**{*;}
 
 -dontwarn dalvik.**
--dontwarn com.tencent.smtt.**
-
--keep class com.tencent.smtt.** {
-    *;
-}
-
--keep class com.tencent.tbs.** {
-    *;
-}
 
 -keep class org.autojs.autoxjs.BuildConfig{
    *;

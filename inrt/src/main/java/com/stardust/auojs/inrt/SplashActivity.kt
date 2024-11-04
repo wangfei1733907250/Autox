@@ -258,7 +258,9 @@ class SplashActivity : AppCompatActivity() {
 
     private fun requestExternalStoragePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !PermissionUtil.checkStoragePermission()) {
-            PermissionUtil.showPermissionDialog(this, storagePermissionLauncher)
+            PermissionUtil.showPermissionDialog(this){
+                storagePermissionLauncher.launch(Unit)
+            }
         } else checkSpecialPermissions()
     }
 

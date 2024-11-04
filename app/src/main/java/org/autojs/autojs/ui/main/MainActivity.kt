@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.os.Process
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.DrawerState
@@ -27,18 +29,16 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.aiselp.autox.ui.material3.BottomBar
 import com.aiselp.autox.ui.material3.DrawerPage
 import com.aiselp.autox.ui.material3.MainTopAppBar
 import com.aiselp.autox.ui.material3.theme.AppTheme
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.stardust.autojs.util.PermissionUtil
 import com.stardust.autojs.util.StoragePermissionResultContract
 import com.stardust.toast
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.autojs.autojs.timing.TimedTaskScheduler
 import org.autojs.autojs.ui.main.components.DocumentPageMenuButton
@@ -59,20 +59,10 @@ class MainActivity : FragmentActivity() {
     private val viewPager: ViewPager2 by lazy { ViewPager2(this) }
 
 
-    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         Log.i("MainActivity", "Pid: ${Process.myPid()}")
-
-        // Request external storage permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val storagePermissionRequestLauncher =
-                registerForActivityResult(StoragePermissionResultContract()) {
-                    lifecycleScope.launch { if (it) "授权成功".toast(this@MainActivity) }
-                }
-            PermissionUtil.showPermissionDialog(this, storagePermissionRequestLauncher)
-        }
 
         setContent {
             val scope = rememberCoroutineScope()
@@ -94,14 +84,13 @@ class MainActivity : FragmentActivity() {
                 } else finish()
             }
 
-            val permission = rememberExternalStoragePermissionsState {
+
+            RequestExternalStoragePermissions {
                 if (it) {
                     scriptListFragment.explorerView.onRefresh()
+                    toast(this@MainActivity, "授权成功")
                 }
             }
-            LaunchedEffect(key1 = Unit, block = {
-                permission.launchMultiplePermissionRequest()
-            })
             AppTheme {
                 MainPage(
                     activity = this,
@@ -184,17 +173,39 @@ fun MainPage(
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun rememberExternalStoragePermissionsState(onPermissionsResult: (allAllow: Boolean) -> Unit) =
-    rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ),
-        onPermissionsResult = { map ->
-            onPermissionsResult(map.all { it.value })
-        })
+fun RequestExternalStoragePermissions(onPermissionsResult: (allAllow: Boolean) -> Unit) {
+    if (PermissionUtil.checkStoragePermission()) {
+        return
+    }
+    val context = LocalContext.current
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val launcher =
+            rememberLauncherForActivityResult(contract = StoragePermissionResultContract()) {
+                onPermissionsResult(it)
+            }
+        LaunchedEffect(Unit) {
+            delay(100)
+            PermissionUtil.showPermissionDialog(context) { launcher.launch(Unit) }
+        }
+    } else {
+        val launcher =
+            rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { it ->
+                onPermissionsResult(it.all { it.value })
+            }
+        LaunchedEffect(Unit) {
+            delay(100)
+            PermissionUtil.showPermissionDialog(context) {
+                launcher.launch(
+                    arrayOf(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+                )
+            }
+        }
+    }
+}
 
 private fun getBottomItems(context: Context) = mutableStateListOf(
     BottomNavigationItem(
