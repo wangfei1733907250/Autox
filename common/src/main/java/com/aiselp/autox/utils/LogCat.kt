@@ -16,14 +16,17 @@ object LogCat {
     }
 
     fun saveLogcat(file: File) {
-        val commandLine = CommandLine("logcat -d -f").apply {
+        val commandLine = CommandLine("logcat").apply {
+            addArguments("-d -f")
             addArgument(file.absolutePath)
         }
         DefaultExecutor().execute(commandLine)
     }
 
     fun dumpLogcat(outputStream: OutputStream) {
-        val commandLine = CommandLine("logcat -d")
+        val commandLine = CommandLine("logcat").apply {
+            addArgument("-d")
+        }
         DefaultExecutor().apply {
             streamHandler = PumpStreamHandler(outputStream)
             execute(commandLine)

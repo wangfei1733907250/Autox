@@ -6,7 +6,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
 import android.os.Looper
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -36,17 +35,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import com.aiselp.autox.ui.material3.theme.AppTheme
 import com.aiselp.autox.utils.DeviceInfo
 import com.aiselp.autox.utils.LogCat
 import com.stardust.toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 
 open class ErrorReportActivity : AppCompatActivity() {
@@ -57,8 +53,7 @@ open class ErrorReportActivity : AppCompatActivity() {
     protected open val logCatSaveFile: File
         get() {
             return File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "autox-logcat.txt"
+                externalCacheDir, "autox-logcat.txt"
             )
         }
 
@@ -102,7 +97,6 @@ open class ErrorReportActivity : AppCompatActivity() {
 
     @Composable
     protected open fun AppBarActions() {
-        val scope = rememberCoroutineScope()
         var dropdownMenu by remember { mutableStateOf(false) }
         Box {
             IconButton(onClick = { dropdownMenu = true }) {
@@ -111,15 +105,21 @@ open class ErrorReportActivity : AppCompatActivity() {
             DropdownMenu(expanded = dropdownMenu, onDismissRequest = { dropdownMenu = false }) {
                 DropdownMenuItem(text = { Text(text = "获取logcat信息") }, onClick = {
                     dropdownMenu = false
-                    scope.launch(Dispatchers.IO) {
+                    Thread {
                         LogCat.saveLogcat(logCatSaveFile)
-                        withContext(Dispatchers.Main) {
-                            toast(
-                                this@ErrorReportActivity,
-                                "已保存到：${logCatSaveFile.absolutePath}"
-                            )
+                        val uri = FileProvider.getUriForFile(
+                            this@ErrorReportActivity,
+                            "$packageName.fileprovider",
+                            logCatSaveFile
+                        )
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            setType("text/plain") // 设置文件类型
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
-                    }
+                        // 启动分享 Intent
+                        startActivity(Intent.createChooser(shareIntent, logCatSaveFile.name))
+                    }.start()
                 })
             }
         }
