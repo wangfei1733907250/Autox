@@ -6,7 +6,11 @@ import androidx.preference.PreferenceManager;
 import com.stardust.app.GlobalAppContext
 
 object Pref {
-    private val preferences = PreferenceManager.getDefaultSharedPreferences(GlobalAppContext.get())
+    private var inr: SharedPreferences? = null
+    private val preferences: SharedPreferences
+        get() = inr ?: PreferenceManager.getDefaultSharedPreferences(GlobalAppContext.get())
+
+
     val isStableModeEnabled: Boolean
         get() {
             return preferences.getBoolean("key_stable_mode", false)
@@ -19,6 +23,10 @@ object Pref {
 
     fun getDefault(context: Context): SharedPreferences {
         return PreferenceManager.getDefaultSharedPreferences(context)
+    }
+
+    fun init(context: Context) {
+        inr = getDefault(context)
     }
 }
 
