@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 
-object IconButton : VueNativeComponent {
+internal object IconButton : VueNativeComponent {
     override val tag: String = "IconButton"
 
     @Composable

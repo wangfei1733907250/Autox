@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 
-object RangeSlider : VueNativeComponent {
+internal object RangeSlider : VueNativeComponent {
     override val tag: String = "RangeSlider"
 
     @Composable

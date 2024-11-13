@@ -27,6 +27,7 @@ import com.stardust.autojs.runtime.api.AbstractShell
 import com.stardust.autojs.runtime.api.AppUtils
 import com.stardust.autojs.script.AutoFileSource
 import com.stardust.autojs.script.JavaScriptSource
+import com.stardust.autojs.util.ObjectWatcher
 import com.stardust.util.ResourceMonitor
 import com.stardust.util.ResourceMonitor.UnclosedResourceDetectedException
 import com.stardust.util.ResourceMonitor.UnclosedResourceException
@@ -60,6 +61,8 @@ abstract class AutoJs protected constructor(protected val application: Applicati
     val globalConsole: GlobalConsole by lazy { createGlobalConsole() }
 
     init {
+        ObjectWatcher.init(application)
+        ScreenMetrics.initIfNeeded(application)
         MlKit.initialize(application)
         scriptEngineService = buildScriptEngineService()
         ScriptEngineService.instance = scriptEngineService
@@ -115,7 +118,7 @@ abstract class AutoJs protected constructor(protected val application: Applicati
         initContextFactory()
         scriptEngineManager.registerEngine(AutoFileSource.ENGINE) { RootAutomatorEngine(mContext) }
         scriptEngineManager.registerEngine(NodeScriptEngine.ID) {
-            NodeScriptEngine(mContext,uiHandler)
+            NodeScriptEngine(mContext, uiHandler)
         }
     }
 
@@ -138,7 +141,6 @@ abstract class AutoJs protected constructor(protected val application: Applicati
     private fun registerActivityLifecycleCallbacks() {
         application.registerActivityLifecycleCallbacks(object : SimpleActivityLifecycleCallbacks() {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                ScreenMetrics.initIfNeeded(activity)
                 appUtils.currentActivity = activity
             }
 

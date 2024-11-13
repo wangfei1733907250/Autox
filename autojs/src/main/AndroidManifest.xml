@@ -31,6 +31,9 @@
 
     <application>
         <activity
+            android:name="leakcanary.internal.activity.LeakActivity"
+            android:process="@string/text_script_process_name" />
+        <activity
             android:name=".execution.ScriptExecuteActivity"
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|navigation|orientation|screenLayout|screenSize|uiMode"
             android:process="@string/text_script_process_name"
@@ -79,6 +82,9 @@
             android:name="com.stardust.autojs.core.image.capture.CaptureForegroundService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection"
+            android:process="@string/text_script_process_name" />
+        <service
+            android:name="com.stardust.enhancedfloaty.FloatyService"
             android:process="@string/text_script_process_name" />
 
     </application>

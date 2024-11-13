@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 
-object Template : VueNativeComponent {
+internal object Template : VueNativeComponent {
     override val tag: String = "template"
 
     @Composable

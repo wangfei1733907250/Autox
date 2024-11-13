@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.Render
 
-object TopAppBar : VueNativeComponent {
+internal object TopAppBar : VueNativeComponent {
     override val tag: String = "TopAppBar"
 
     @OptIn(ExperimentalMaterial3Api::class)

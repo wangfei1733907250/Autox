@@ -16,7 +16,7 @@ import com.aiselp.autox.api.ui.Render
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
-object TextField : VueNativeComponent {
+internal object TextField : VueNativeComponent {
     override val tag: String = "TextField"
 
     @Composable

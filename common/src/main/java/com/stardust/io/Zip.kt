@@ -5,6 +5,8 @@ import java.io.FileInputStream
 import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
+
 
 object Zip {
 
@@ -55,4 +57,37 @@ object Zip {
             }
         }
     }
+
+    fun zipFileList(fileList: List<File>, zipOut: ZipOutputStream) {
+        for (file in fileList) {
+            zipFile(file, file.name, zipOut)
+        }
+    }
+
+    fun zipFile(fileToZip: File, name: String, zipOut: ZipOutputStream) {
+        var fileName = name
+
+        // 如果是目录，递归处理其中的文件
+        if (fileToZip.isDirectory) {
+            if (!fileName.endsWith("/")) {
+                fileName += "/"
+            }
+            val zipEntry = ZipEntry(fileName)
+            zipOut.putNextEntry(zipEntry)
+            zipOut.closeEntry()
+
+            val children = fileToZip.listFiles() ?: return
+            for (childFile in children) {
+                zipFile(childFile, fileName + childFile.name, zipOut)
+            }
+            return
+        }
+
+        // 如果是文件，读取其内容并写入压缩文件
+        val fis = FileInputStream(fileToZip)
+        zipOut.putNextEntry(ZipEntry(fileName))
+        fis.copyTo(zipOut)
+        zipOut.closeEntry()
+    }
+
 }

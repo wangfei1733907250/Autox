@@ -16,7 +16,6 @@ import butterknife.OnCheckedChanged
 import butterknife.OnClick
 import com.stardust.pio.PFile
 import com.stardust.pio.PFiles
-import org.autojs.autoxjs.R
 import org.autojs.autojs.model.explorer.ExplorerItem
 import org.autojs.autojs.model.explorer.ExplorerPage
 import org.autojs.autojs.model.script.ScriptFile
@@ -24,6 +23,7 @@ import org.autojs.autojs.ui.explorer.ExplorerViewHelper
 import org.autojs.autojs.ui.explorer.ExplorerViewKt
 import org.autojs.autojs.ui.widget.BindableViewHolder
 import org.autojs.autojs.ui.widget.CheckBoxCompat
+import org.autojs.autoxjs.R
 
 /**
  * Created by Stardust on 2017/10/19.
@@ -33,11 +33,11 @@ class FileChooseListView : ExplorerViewKt {
     private val mSelectedFiles = LinkedHashMap<PFile, Int>()
     private var mCanChooseDir = false
 
-    constructor(context: Context?) : super(context) {
+    constructor(context: Context) : super(context) {
         init()
     }
 
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         init()
     }
 

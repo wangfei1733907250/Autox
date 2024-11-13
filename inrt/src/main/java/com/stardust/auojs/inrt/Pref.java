@@ -2,6 +2,7 @@ package com.stardust.auojs.inrt;
 
 import android.content.SharedPreferences;
 import android.os.Environment;
+
 import androidx.preference.PreferenceManager;
 
 
@@ -13,6 +14,7 @@ import java.io.File;
 
 public class Pref {
     private static String KEY_FIRST_USING = "key_first_using";
+    static final String KEY_APP_VERSION = "key_app_version";
 
     private static SharedPreferences def() {
         return PreferenceManager.getDefaultSharedPreferences(GlobalAppContext.get());
@@ -22,21 +24,27 @@ public class Pref {
         boolean firstUsing = def().getBoolean(KEY_FIRST_USING, true);
         return firstUsing;
     }
+
     public static void setNotFirstUsingEnd() {
         def().edit().putBoolean(KEY_FIRST_USING, false).apply();
     }
+
     private static String getString(int res) {
         return GlobalAppContext.getString(res);
     }
+
     public static boolean isStableMode() {
         return def().getBoolean(getString(R.string.key_stable_mode), false);
     }
+
     public static void setStableMode(Boolean value) {
         def().edit().putBoolean(getString(R.string.key_stable_mode), value).apply();
     }
+
     public static void setHideLogs(Boolean value) {
         def().edit().putBoolean(getString(R.string.key_hide_logs), value).apply();
     }
+
     public static boolean istHideLogs() {
         return def().getBoolean(getString(R.string.key_hide_logs), false);
     }
@@ -44,6 +52,7 @@ public class Pref {
     public static void setDisplaySplash(Boolean value) {
         def().edit().putBoolean(getString(R.string.key_dont_show_main_activity), value).apply();
     }
+
     public static boolean istDisplaySplash() {
         return def().getBoolean(getString(R.string.key_dont_show_main_activity), false);
     }
@@ -51,6 +60,7 @@ public class Pref {
     public static boolean shouldStopAllScriptsWhenVolumeUp() {
         return def().getBoolean(getString(R.string.key_use_volume_control_running), true);
     }
+
     public static void setStopAllScriptsWhenVolumeUp(Boolean value) {
         def().edit().putBoolean(getString(R.string.key_use_volume_control_running), value).apply();
     }
@@ -66,7 +76,6 @@ public class Pref {
     public static boolean shouldEnableFloatingWindow() {
         return def().getBoolean(getString(R.string.key_enable_floating_window), false);
     }
-
 
 
     public static String getScriptDirPath() {
@@ -102,6 +111,7 @@ public class Pref {
     public static String getStatus(String defValue) {
         return def().getString("user_status", defValue);
     }
+
     public static void setStatus(String defValue) {
         def().edit().putString("user_status", defValue).apply();
     }

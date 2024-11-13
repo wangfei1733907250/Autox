@@ -99,6 +99,7 @@ class BuildViewModel(private val app: Application, private var source: String) :
     var abiList by mutableStateOf(
         Constant.Abi.abis.joinToString(", ")
     )
+    var useNodejs: Boolean by mutableStateOf(false)
 
     //--so
     var isRequiredOpenCv by mutableStateOf(false)
@@ -284,6 +285,7 @@ class BuildViewModel(private val app: Application, private var source: String) :
                 permissions = updatePermissions()
                 isHideAccessibilityServices = viewModel.isHideAccessibilityServices
             }
+            useNodejs = viewModel.useNodejs
             SigningConfig(
                 keyStore = viewModel.keyStore?.path,
                 alias = viewModel.keyStore?.alias,
@@ -321,6 +323,7 @@ class BuildViewModel(private val app: Application, private var source: String) :
         splashIcon = projectConfig.launchConfig.splashIcon?.let {
             getUri(it)
         }
+        useNodejs = projectConfig.useNodejs
 
         val signConfig = projectConfig.signingConfig
         v1Sign = signConfig.v1Sign

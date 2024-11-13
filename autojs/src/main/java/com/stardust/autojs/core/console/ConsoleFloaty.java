@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.ContextWrapper;
 
 import androidx.annotation.Nullable;
+import androidx.compose.ui.graphics.Color;
 
 import android.content.res.ColorStateList;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -115,6 +117,7 @@ public class ConsoleFloaty extends ResizableExpandableFloaty.AbstractResizableEx
 
     private void setUpConsole(View view, ResizableExpandableFloatyWindow window) {
         ConsoleView consoleView = view.findViewById(R.id.console);
+        consoleView.getColors().put(Log.DEBUG, 0xbbffffff);
         consoleView.setConsole(mConsole);
         consoleView.setWindow(window);
         initConsoleTitle(view);
@@ -133,7 +136,6 @@ public class ConsoleFloaty extends ResizableExpandableFloaty.AbstractResizableEx
         });
         view.findViewById(R.id.minimize).setOnClickListener(v -> window.collapse());
     }
-
 
 
     @Nullable
@@ -157,7 +159,7 @@ public class ConsoleFloaty extends ResizableExpandableFloaty.AbstractResizableEx
         mContentSize = ViewUtils.dpToPx(GlobalAppContext.get(), size);
         mTitleColor = color;
         if (mTitleView != null) {
-            if(!TextUtils.isEmpty(title)){
+            if (!TextUtils.isEmpty(title)) {
                 mTitleView.post(() -> mTitleView.setText(title));
             }
             resetTiteText();

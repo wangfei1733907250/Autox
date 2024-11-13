@@ -71,6 +71,7 @@ import com.stardust.autojs.IndependentScriptService
 import com.stardust.autojs.core.pref.PrefKey
 import com.stardust.notification.NotificationListenerService
 import com.stardust.toast
+import com.stardust.util.ClipboardUtil
 import com.stardust.util.IntentUtil
 import com.stardust.view.accessibility.AccessibilityService
 import io.github.g00fy2.quickie.QRResult
@@ -558,7 +559,7 @@ fun USBDebugSwitch() {
 
 @Composable
 fun SwitchTimedTaskScheduler() {
-    val dialog = DialogController()
+    val dialog = remember { DialogController() }
     val scope = rememberCoroutineScope()
     TextButton(onClick = { scope.launch { dialog.show() } }) {
         Text(text = stringResource(id = R.string.text_switch_timed_task_scheduler))
@@ -642,9 +643,9 @@ private fun Feedback() {
 
 @Composable
 private fun CheckForUpdate(model: DrawerViewModel = viewModel()) {
-    var showDialog by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val dialog = DialogController()
+    val context = LocalContext.current
+    val dialog = remember { DialogController() }
     var enabled by rememberSaveable { mutableStateOf(true) }
 
     TextButton(
@@ -674,11 +675,17 @@ private fun CheckForUpdate(model: DrawerViewModel = viewModel()) {
         },
         positiveText = stringResource(id = R.string.text_download),
         onPositiveClick = {
-            showDialog = false
+            scope.launch { dialog.dismiss() }
             model.downloadApk()
         },
         negativeText = stringResource(id = R.string.cancel),
-        onNegativeClick = { showDialog = false },
+        onNegativeClick = { scope.launch { dialog.dismiss() } },
+        neutralText = stringResource(R.string.text_copy_link),
+        onNeutralClick = {
+            ClipboardUtil.setClip(context, model.getApkNameAndDownloadLink().second)
+            scope.launch { dialog.dismiss() }
+            toast(context, R.string.text_copy_successfully)
+        }
     ) {
         val date = rememberSaveable {
             Instant.parse(model.githubReleaseInfo!!.createdAt)

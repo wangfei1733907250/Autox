@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 
-object Switch : VueNativeComponent {
+internal object Switch : VueNativeComponent {
     override val tag: String = "Switch"
 
     @Composable

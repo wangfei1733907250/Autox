@@ -153,9 +153,9 @@ public abstract class ScriptRuntime {
 
     private static WeakReference<Context> applicationContext;
     private Map<String, Object> mProperties = new ConcurrentHashMap<>();
-    private AbstractShell mRootShell;
-    private Supplier<AbstractShell> mShellSupplier;
-    private ScreenMetrics mScreenMetrics = new ScreenMetrics();
+    protected AbstractShell mRootShell;
+    protected Supplier<AbstractShell> mShellSupplier;
+    protected ScreenMetrics mScreenMetrics = new ScreenMetrics();
     protected Thread mThread;
     protected TopLevelScope mTopLevelScope;
 
@@ -220,41 +220,6 @@ public abstract class ScriptRuntime {
         }
     }
 
-    public void setClip(final String text) {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            ClipboardUtil.setClip(uiHandler.getContext(), text);
-            return;
-        }
-        VolatileDispose<Object> dispose = new VolatileDispose<>();
-        uiHandler.post(() -> {
-            ClipboardUtil.setClip(uiHandler.getContext(), text);
-            dispose.setAndNotify(text);
-        });
-        dispose.blockedGet();
-    }
-
-    public String getClip() {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            return ClipboardUtil.getClipOrEmpty(uiHandler.getContext()).toString();
-        }
-        final VolatileDispose<String> clip = new VolatileDispose<>();
-        uiHandler.post(() -> clip.setAndNotify(ClipboardUtil.getClipOrEmpty(uiHandler.getContext()).toString()));
-        return clip.blockedGetOrThrow(ScriptInterruptedException.class);
-    }
-
-    public AbstractShell getRootShell() {
-        ensureRootShell();
-        return mRootShell;
-    }
-
-    private void ensureRootShell() {
-        if (mRootShell == null) {
-            mRootShell = mShellSupplier.get();
-            mRootShell.SetScreenMetrics(mScreenMetrics);
-            mShellSupplier = null;
-        }
-    }
-
     public AbstractShell.Result shell(String cmd, int root) {
         return ProcessShell.execCommand(cmd, root != 0);
     }
@@ -274,9 +239,6 @@ public abstract class ScriptRuntime {
     }
 
     public void requestPermissions(String[] permissions) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return;
-        }
         Context context = uiHandler.getContext();
         permissions = Permissions.getPermissionsNeedToRequest(context, permissions);
         if (permissions.length == 0)
@@ -284,23 +246,6 @@ public abstract class ScriptRuntime {
         Permissions.requestPermissions(context, permissions);
     }
 
-    public void loadJar(String path) {
-        path = files.path(path);
-        try {
-            ((AndroidClassLoader) ContextFactory.getGlobal().getApplicationClassLoader()).loadJar(new File(path));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void loadDex(String path) {
-        path = files.path(path);
-        try {
-            ((AndroidClassLoader) ContextFactory.getGlobal().getApplicationClassLoader()).loadDex(new File(path));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
 
     public void exit() {
         mThread.interrupt();

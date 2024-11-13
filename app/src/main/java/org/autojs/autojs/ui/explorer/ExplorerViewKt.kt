@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -42,7 +43,6 @@ import org.autojs.autojs.model.script.ScriptFile
 import org.autojs.autojs.model.script.Scripts.edit
 import org.autojs.autojs.model.script.Scripts.openByOtherApps
 import org.autojs.autojs.model.script.Scripts.send
-import org.autojs.autojs.theme.widget.ThemeColorSwipeRefreshLayout
 import org.autojs.autojs.tool.Observers
 import org.autojs.autojs.ui.build.BuildActivity
 import org.autojs.autojs.ui.common.ScriptLoopDialog
@@ -58,7 +58,7 @@ import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.util.Stack
 
-open class ExplorerViewKt : ThemeColorSwipeRefreshLayout, OnRefreshListener,
+open class ExplorerViewKt : SwipeRefreshLayout, OnRefreshListener,
     PopupMenu.OnMenuItemClickListener, ViewTreeObserver.OnGlobalFocusChangeListener {
 
     private var onItemClickListener: ((view: View, item: ExplorerItem?) -> Unit)? = null
@@ -77,11 +77,11 @@ open class ExplorerViewKt : ThemeColorSwipeRefreshLayout, OnRefreshListener,
     private var directorySpanSize1 = 2
     val currentPage get() = currentPageState.currentPage
 
-    constructor(context: Context?) : super(context) {
+    constructor(context: Context) : super(context) {
         init()
     }
 
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         init()
     }
 

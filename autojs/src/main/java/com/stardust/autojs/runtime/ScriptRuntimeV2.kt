@@ -1,10 +1,12 @@
 package com.stardust.autojs.runtime
 
 import com.stardust.autojs.ScriptEngineService
+import com.stardust.autojs.annotation.ScriptInterface
 import com.stardust.autojs.core.accessibility.AccessibilityBridge
 import com.stardust.autojs.core.console.ConsoleImpl
 import com.stardust.autojs.core.image.capture.ScreenCaptureRequester
 import com.stardust.autojs.core.looper.Loopers
+import com.stardust.autojs.rhino.AndroidClassLoader
 import com.stardust.autojs.rhino.TopLevelScope
 import com.stardust.autojs.runtime.api.AbstractShell
 import com.stardust.autojs.runtime.api.AppUtils
@@ -14,10 +16,17 @@ import com.stardust.autojs.runtime.api.Events
 import com.stardust.autojs.runtime.api.Sensors
 import com.stardust.autojs.runtime.api.Threads
 import com.stardust.autojs.runtime.api.Timers
+import com.stardust.autojs.util.ObjectWatcher
+import com.stardust.autojs.util.runOnUiThread
+import com.stardust.pio.UncheckedIOException
+import com.stardust.util.ClipboardUtil
 import com.stardust.util.Supplier
 import com.stardust.util.UiHandler
+import org.mozilla.javascript.ContextFactory
 import org.mozilla.javascript.RhinoException
 import java.io.BufferedReader
+import java.io.File
+import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringReader
 import java.io.StringWriter
@@ -46,10 +55,56 @@ class ScriptRuntimeV2(val builder: Builder) : ScriptRuntime(builder) {
         mTopLevelScope = topLevelScope
     }
 
+    @ScriptInterface
+    fun setClip(text: String): Unit = runOnUiThread {
+        ClipboardUtil.setClip(uiHandler.context, text)
+    }
+
+    @ScriptInterface
+    fun getClip(): String = runOnUiThread {
+        ClipboardUtil.getClipOrEmpty(uiHandler.context).toString()
+    }
+
+    @ScriptInterface
+    fun getRootShell(): AbstractShell {
+        ensureRootShell()
+        return mRootShell
+    }
+
+    @ScriptInterface
+    fun loadJar(path: String) {
+        try {
+            (ContextFactory.getGlobal().applicationClassLoader as AndroidClassLoader).loadJar(
+                File(files.path(path))
+            )
+        } catch (e: IOException) {
+            throw UncheckedIOException(e)
+        }
+    }
+
+    @ScriptInterface
+    fun loadDex(path: String) {
+        try {
+            (ContextFactory.getGlobal().applicationClassLoader as AndroidClassLoader).loadDex(
+                File(files.path(path))
+            )
+        } catch (e: IOException) {
+            throw UncheckedIOException(e)
+        }
+    }
+
+    private fun ensureRootShell() {
+        if (mRootShell == null) {
+            mRootShell = mShellSupplier.get()
+            mRootShell.SetScreenMetrics(mScreenMetrics)
+            mShellSupplier = null
+        }
+    }
+
     override fun onExit() {
         super.onExit()
         consoleExtension.close()
-//        ObjectWatcher.default.watch(this, engines.myEngine().toString() + "::" + TAG)
+        ObjectWatcher.default.watch(this, engines.myEngine().toString() + "::" + TAG)
     }
 
     class Builder {
@@ -69,7 +124,7 @@ class ScriptRuntimeV2(val builder: Builder) : ScriptRuntime(builder) {
         private const val TAG = "ScriptRuntimeV2"
 
         @JvmStatic
-        fun getStackTrace(e: Throwable, printJavaStackTrace: Boolean): String? {
+        fun getStackTrace(e: Throwable, printJavaStackTrace: Boolean): String {
             val message = e.message
             val scriptTrace = StringBuilder(if (message == null) "" else message + "\n")
             if (e is RhinoException) {

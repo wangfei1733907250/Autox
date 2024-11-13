@@ -11,7 +11,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.aiselp.autox.api.ui.ComposeElement
 
 
-object Icon : VueNativeComponent {
+internal object Icon : VueNativeComponent {
     override val tag: String = "Icon"
 
     @Composable

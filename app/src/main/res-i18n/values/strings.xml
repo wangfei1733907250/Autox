@@ -551,4 +551,6 @@
     <string name="text_sign_alias">别名</string>
     <string name="text_sign_key_password">私钥密码</string>
     <string name="text_sign_plan">签名方案</string>
+    <string name="text_copy_successfully">复制成功</string>
+    <string name="text_copy_link">复制链接</string>
 </resources>

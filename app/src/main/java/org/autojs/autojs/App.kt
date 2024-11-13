@@ -1,6 +1,7 @@
 package org.autojs.autojs
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.app.LocaleManager
 import android.content.Intent
 import android.os.Build
@@ -13,25 +14,22 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
 import com.aiselp.autox.engine.NodeScriptEngine.Companion.initModuleResource
+import com.aiselp.autox.ui.material3.activity.ErrorReportActivity
 import com.flurry.android.FlurryAgent
 import com.stardust.app.GlobalAppContext
 import com.stardust.autojs.core.pref.PrefKey
 import com.stardust.autojs.servicecomponents.ScriptServiceConnection
 import com.stardust.autojs.util.ProcessUtils
 import com.stardust.theme.ThemeColor
-import com.tencent.bugly.Bugly
-import com.tencent.bugly.crashreport.CrashReport
 import org.autojs.autojs.autojs.AutoJs
 import org.autojs.autojs.autojs.key.GlobalKeyObserver
 import org.autojs.autojs.external.receiver.DynamicBroadcastReceivers
 import org.autojs.autojs.theme.ThemeColorManagerCompat
 import org.autojs.autojs.timing.TimedTaskManager
 import org.autojs.autojs.timing.TimedTaskScheduler
-import org.autojs.autojs.tool.CrashHandler
-import org.autojs.autojs.ui.error.ErrorReportActivity
+import org.autojs.autojs.ui.main.MainActivity
 import org.autojs.autoxjs.BuildConfig
 import org.autojs.autoxjs.R
 import java.lang.ref.WeakReference
@@ -40,7 +38,7 @@ import java.lang.ref.WeakReference
  * Created by Stardust on 2017/1/27.
  */
 
-class App : MultiDexApplication(), Configuration.Provider {
+class App : Application(), Configuration.Provider {
     lateinit var dynamicBroadcastReceivers: DynamicBroadcastReceivers
         private set
 
@@ -64,16 +62,7 @@ class App : MultiDexApplication(), Configuration.Provider {
     }
 
     private fun setUpDebugEnvironment() {
-        Bugly.isDev = false
-        val crashHandler = CrashHandler(ErrorReportActivity::class.java)
-
-        val strategy = CrashReport.UserStrategy(applicationContext)
-        strategy.setCrashHandleCallback(crashHandler)
-
-        CrashReport.initCrashReport(applicationContext, BUGLY_APP_ID, false, strategy)
-
-        crashHandler.setBuglyHandler(Thread.getDefaultUncaughtExceptionHandler())
-        Thread.setDefaultUncaughtExceptionHandler(crashHandler)
+        ErrorReportActivity.install(this, MainActivity::class.java)
     }
 
     private fun init() {

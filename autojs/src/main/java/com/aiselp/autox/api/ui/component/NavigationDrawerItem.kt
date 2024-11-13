@@ -7,7 +7,7 @@ import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.ComposeTextNode
 import com.aiselp.autox.api.ui.Render
 
-object NavigationDrawerItem : VueNativeComponent {
+internal object NavigationDrawerItem : VueNativeComponent {
     override val tag: String = "NavigationDrawerItem"
 
     @Composable

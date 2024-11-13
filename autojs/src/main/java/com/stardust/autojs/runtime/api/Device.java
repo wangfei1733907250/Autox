@@ -80,13 +80,8 @@ public class Device {
     public static final String securityPatch;
 
     static {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            baseOS = Build.VERSION.BASE_OS;
-            securityPatch = Build.VERSION.SECURITY_PATCH;
-        } else {
-            baseOS = null;
-            securityPatch = null;
-        }
+        baseOS = Build.VERSION.BASE_OS;
+        securityPatch = Build.VERSION.SECURITY_PATCH;
     }
 
     public static final String codename = Build.VERSION.CODENAME;
@@ -193,7 +188,7 @@ public class Device {
         int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         float battery = ((float) level / scale) * 100.0f;
-        return Math.round(battery * 10) / 10;
+        return (float) Math.round(battery * 10) / 10;
     }
 
     public long getTotalMem() {
@@ -297,11 +292,9 @@ public class Device {
 
 
     private void checkReadPhoneStatePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (mContext.checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                throw new SecurityException(mContext.getString(R.string.no_read_phone_state_permissin));
-            }
+        if (mContext.checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(mContext.getString(R.string.no_read_phone_state_permissin));
         }
     }
 
@@ -423,6 +416,7 @@ public class Device {
     }
 
 
+    @NonNull
     @Override
     public String toString() {
         return "Device{" +

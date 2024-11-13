@@ -13,7 +13,7 @@ import com.stardust.enhancedfloaty.util.WindowTypeCompat
 
 
 class RawWindow(rawFloaty: RawFloaty, context: Context) : FloatyWindow() {
-    interface RawFloaty {
+    fun interface RawFloaty {
         fun inflateWindowView(context: Context, parent: ViewGroup): View
     }
 

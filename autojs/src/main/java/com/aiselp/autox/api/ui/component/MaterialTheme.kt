@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.aiselp.autox.api.ui.ComposeElement
 
-object MaterialTheme : VueNativeComponent {
+internal object MaterialTheme : VueNativeComponent {
     override val tag: String = "MaterialTheme"
 
     @Composable

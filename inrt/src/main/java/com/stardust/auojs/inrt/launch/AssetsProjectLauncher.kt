@@ -16,6 +16,7 @@ import com.stardust.autojs.execution.ScriptExecution
 import com.stardust.autojs.project.ProjectConfig
 import com.stardust.autojs.script.JavaScriptFileSource
 import com.stardust.autojs.script.JavaScriptSource
+import com.stardust.autojs.script.ScriptFile
 import com.stardust.pio.PFiles
 import com.stardust.pio.UncheckedIOException
 import com.stardust.util.MD5
@@ -73,9 +74,7 @@ open class AssetsProjectLauncher(
     }
 
     private fun runScript(activity: Activity?) {
-        if (mScriptExecution != null && mScriptExecution!!.engine != null &&
-            !mScriptExecution!!.engine.isDestroyed
-        ) {
+        if (mScriptExecution?.engine?.isDestroyed == false) {
             stop()
         }
         try {
@@ -87,7 +86,9 @@ open class AssetsProjectLauncher(
             } else {
                 activity?.finish()
             }
-            mScriptExecution = AutoJs.instance.scriptEngineService.execute(source, config)
+            mScriptExecution = AutoJs.instance.scriptEngineService.execute(
+                ScriptFile(mMainScriptFile).toSource(), config
+            )
         } catch (e: Exception) {
             AutoJs.instance.globalConsole.error(e)
         }

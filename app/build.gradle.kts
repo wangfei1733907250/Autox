@@ -231,7 +231,6 @@ dependencies {
     // Flurry
     implementation("com.flurry.android:analytics:13.1.0@aar")
     // tencent
-    implementation("com.tencent.bugly:crashreport:4.0.0")
     implementation("com.tencent.tbs:tbssdk:44181")
     // MaterialDialogCommon
     implementation("com.afollestad.material-dialogs:commons:0.9.2.3")
@@ -241,7 +240,6 @@ dependencies {
     implementation(project(":autojs"))
     implementation(project(":apkbuilder"))
     implementation(project(":codeeditor"))
-    implementation("androidx.multidex:multidex:2.0.1")
 
     // ViewModel
     implementation(libs.lifecycle.viewmodel.ktx)

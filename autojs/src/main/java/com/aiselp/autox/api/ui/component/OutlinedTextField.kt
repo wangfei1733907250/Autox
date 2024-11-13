@@ -16,7 +16,7 @@ import com.aiselp.autox.api.ui.component.TextField.parseKeyboardOptions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
-object OutlinedTextField:VueNativeComponent {
+internal object OutlinedTextField:VueNativeComponent {
     override val tag: String = "OutlinedTextField"
 
     @Composable

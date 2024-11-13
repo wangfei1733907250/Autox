@@ -6,7 +6,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 
-object Box : VueNativeComponent {
+internal object Box : VueNativeComponent {
     override val tag: String = "box"
 
     @Composable

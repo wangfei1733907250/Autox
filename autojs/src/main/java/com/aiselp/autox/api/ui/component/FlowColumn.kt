@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.RenderColumn
 
-object FlowColumn : VueNativeComponent {
+internal object FlowColumn : VueNativeComponent {
     override val tag: String = "FlowColumn"
 
     @OptIn(ExperimentalLayoutApi::class)

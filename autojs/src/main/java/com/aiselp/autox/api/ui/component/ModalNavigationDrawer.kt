@@ -14,7 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
-object ModalNavigationDrawer : VueNativeComponent {
+internal object ModalNavigationDrawer : VueNativeComponent {
     override val tag: String = "ModalNavigationDrawer"
     private const val EVENT_ON_RENDER = "onRender"
 

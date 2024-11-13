@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.Render
 
-object TabRow : VueNativeComponent {
+internal object TabRow : VueNativeComponent {
     override val tag: String = "TabRow"
 
     @OptIn(ExperimentalMaterial3Api::class)

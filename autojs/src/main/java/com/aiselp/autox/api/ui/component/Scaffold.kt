@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.Render
 
-object Scaffold : VueNativeComponent {
+internal object Scaffold : VueNativeComponent {
     override val tag: String = "Scaffold"
 
     @Composable

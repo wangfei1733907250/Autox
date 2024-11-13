@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.RenderColumn
 
-object Column : VueNativeComponent {
+internal object Column : VueNativeComponent {
     override val tag: String = "column"
 
     @Composable

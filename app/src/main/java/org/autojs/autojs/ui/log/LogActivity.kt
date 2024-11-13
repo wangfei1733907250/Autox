@@ -2,45 +2,66 @@ package org.autojs.autojs.ui.log
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.shape.MaterialShapeDrawable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.aiselp.autox.ui.material3.components.BackTopAppBar
+import com.aiselp.autox.ui.material3.theme.AppTheme
 import com.stardust.autojs.core.console.ConsoleImpl
 import com.stardust.autojs.core.console.ConsoleView
 import org.autojs.autojs.autojs.AutoJs
 import org.autojs.autoxjs.R
-import org.autojs.autoxjs.databinding.ActivityLogBinding
 
 
 open class LogActivity : AppCompatActivity() {
-    private val consoleView: ConsoleView by lazy { binding.console }
+    private lateinit var consoleView: ConsoleView
     private val consoleImpl: ConsoleImpl by lazy { AutoJs.getInstance().globalConsole }
-    private lateinit var binding: ActivityLogBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLogBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setUpToolbar()
-        setupViews()
-    }
-
-    private fun setUpToolbar() {
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener { finish() }
-    }
-
-    fun setupViews() {
-        findViewById<AppBarLayout>(R.id.app_bar).statusBarForeground =
-            MaterialShapeDrawable.createWithElevationOverlay(this)
+        consoleView = ConsoleView(this)
         consoleView.setConsole(consoleImpl)
-        consoleView.findViewById<View>(R.id.input_container).apply {
-            visibility = View.GONE
+        consoleView.findViewById<View>(R.id.input_container).visibility = View.GONE
+        setContent {
+            AppTheme {
+                Scaffold(
+                    topBar = { BackTopAppBar(title = stringResource(R.string.text_log)) },
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = { consoleImpl.clear() },
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = stringResource(R.string.text_clear)
+                            )
+                        }
+                    }
+                ) { paddingValues ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                    ) {
+                        HorizontalDivider()
+                        AndroidView(factory = { consoleView }, modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
         }
-        findViewById<View>(R.id.fab).setOnClickListener {
-            consoleImpl.clear()
-        }
+
     }
+
 }

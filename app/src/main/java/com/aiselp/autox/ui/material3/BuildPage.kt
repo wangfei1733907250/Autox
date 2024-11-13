@@ -261,6 +261,7 @@ private fun PackagingOptionCard(model: BuildViewModel) {
             onValueChange = { model.abiList = it },
             label = stringResource(R.string.text_abi)
         )
+        CheckboxOption(model::useNodejs,"启用nodejs引擎")
         CheckboxOption(model::isRequiredOpenCv, stringResource(R.string.text_required_opencv))
         CheckboxOption(
             model::isRequiredMlKitOCR,

@@ -13,7 +13,7 @@ import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.ComposeTextNode
 import com.aiselp.autox.api.ui.Render
 
-object Chip : VueNativeComponent {
+internal object Chip : VueNativeComponent {
     override val tag: String = "Chip"
 
     @Composable

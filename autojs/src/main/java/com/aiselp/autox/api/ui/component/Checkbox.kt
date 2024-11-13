@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.state.ToggleableState
 import com.aiselp.autox.api.ui.ComposeElement
 
-object Checkbox : VueNativeComponent {
+internal object Checkbox : VueNativeComponent {
     override val tag: String = "Checkbox"
 
     @Composable

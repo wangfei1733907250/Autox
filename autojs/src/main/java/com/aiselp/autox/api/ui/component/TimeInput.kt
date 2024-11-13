@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.aiselp.autox.api.ui.ComposeElement
 
-object TimeInput:VueNativeComponent {
+internal object TimeInput:VueNativeComponent {
     override val tag: String = "TimeInput"
 
     @OptIn(ExperimentalMaterial3Api::class)

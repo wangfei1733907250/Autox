@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.aiselp.autox.api.ui.ComposeElement
 import com.aiselp.autox.api.ui.Render
 
-object BottomSheetScaffold : VueNativeComponent {
+internal object BottomSheetScaffold : VueNativeComponent {
     override val tag: String = "BottomSheetScaffold"
 
     @OptIn(ExperimentalMaterial3Api::class)
