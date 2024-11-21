@@ -519,17 +519,14 @@ class BuildViewModel(private val app: Application, private var source: String) :
             directory = file.parent
             sourcePath = file.path
         } else { //如果是目录
-            directory = source
-        }
-        oldProjectConfig = ProjectConfig.fromProject(file)
-
-        oldProjectConfig?.let {
-            isOldProjectConfigExist = true
-            projectConfig = it.copy()
-            it.mainScript?.let { mainScript ->
-                sourcePath = File(directory!!, mainScript).path
+            directory = file.path
+            oldProjectConfig = ProjectConfig.fromProject(file)
+            oldProjectConfig?.let {
+                it.sourcePath = file.path
+                isOldProjectConfigExist = true
+                projectConfig = it.copy()
+                syncViewModelByConfig(projectConfig)
             }
-            syncViewModelByConfig(projectConfig)
         }
 
         setOutputPath()
