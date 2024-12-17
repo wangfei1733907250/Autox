@@ -6,12 +6,9 @@ import android.app.usage.UsageStatsManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
-import android.os.SystemClock
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityWindowInfo
-import androidx.annotation.RequiresApi
 import com.stardust.app.isOpPermissionGranted
 import com.stardust.autojs.core.util.Shell
 import com.stardust.view.accessibility.AccessibilityDelegate
@@ -27,12 +24,12 @@ class ActivityInfoProvider(private val context: Context) : AccessibilityDelegate
 
     @Volatile
     private var mLatestPackage: String = ""
+
     @Volatile
     private var mLatestActivity: String = ""
     private var mLatestComponentFromShell: ComponentName? = null
 
     private var mShell: Shell? = null
-    private var mUseShell = false
 
     val latestPackage: String
         get() {
@@ -40,7 +37,7 @@ class ActivityInfoProvider(private val context: Context) : AccessibilityDelegate
             if (useShell && compFromShell != null) {
                 return compFromShell.packageName
             }
-            if (useUsageStats && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            if (useUsageStats) {
                 mLatestPackage = getLatestPackageByUsageStats()
             }
             return mLatestPackage
@@ -57,40 +54,34 @@ class ActivityInfoProvider(private val context: Context) : AccessibilityDelegate
 
     var useUsageStats: Boolean = false
 
-    var useShell: Boolean
-        get() = mUseShell
+    var useShell: Boolean = false
         set(value) {
             if (value) {
-                mShell.let {
-                    if (it == null) {
-                        mShell = createShell(200)
-                    }
-                }
+                if (mShell == null) mShell = createShell(200)
             } else {
                 mShell?.exit()
                 mShell = null
             }
-            mUseShell = value
+            field = value
         }
 
-    override val eventTypes: Set<Int>?
-        get() = AccessibilityDelegate.ALL_EVENT_TYPES
+    override val eventTypes: Set<Int>? = AccessibilityDelegate.ALL_EVENT_TYPES
 
-    override fun onAccessibilityEvent(service: AccessibilityService, event: AccessibilityEvent): Boolean {
+    override fun onAccessibilityEvent(
+        service: AccessibilityService, event: AccessibilityEvent
+    ): Boolean {
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED || event.eventType == AccessibilityEvent.WINDOWS_CHANGE_ACTIVE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val window = service.getWindow(event.windowId)
-                if (window?.isFocused != false) {
-                    setLatestComponent(event.packageName, event.className)
-                    return false
-                }
+            val window = service.getWindow(event.windowId)
+            if (window?.isFocused != false) {
+                setLatestComponent(event.packageName, event.className)
+                return false
             }
         }
         return false
     }
 
     fun getLatestPackageByUsageStatsIfGranted(): String {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 && context.isOpPermissionGranted(AppOpsManager.OPSTR_GET_USAGE_STATS)) {
+        if (context.isOpPermissionGranted(AppOpsManager.OPSTR_GET_USAGE_STATS)) {
             return getLatestPackageByUsageStats()
         }
         return mLatestPackage
@@ -111,7 +102,10 @@ class ActivityInfoProvider(private val context: Context) : AccessibilityDelegate
         } else {
             ""
         }
-        Log.d(LOG_TAG, "setLatestComponent: output = $output, comp = $latestPackage/$latestActivity")
+        Log.d(
+            LOG_TAG,
+            "setLatestComponent: output = $output, comp = $latestPackage/$latestActivity"
+        )
         mLatestComponentFromShell = ComponentName(latestPackage, latestActivity)
     }
 
@@ -137,11 +131,15 @@ class ActivityInfoProvider(private val context: Context) : AccessibilityDelegate
         return shell
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun getLatestPackageByUsageStats(): String {
-        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val usageStatsManager =
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val current = System.currentTimeMillis()
-        val usageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, current - 60 * 60 * 1000, current)
+        val usageStats = usageStatsManager.queryUsageStats(
+            UsageStatsManager.INTERVAL_BEST,
+            current - 60 * 60 * 1000,
+            current
+        )
         return if (usageStats.isEmpty()) {
             mLatestPackage
         } else {
@@ -162,7 +160,10 @@ class ActivityInfoProvider(private val context: Context) : AccessibilityDelegate
             mLatestPackage = latestPackage.toString()
             mLatestActivity = latestClassStr
         }
-        Log.d(LOG_TAG, "setLatestComponent: $latestPackage/$latestClassStr $mLatestPackage/$mLatestActivity")
+        Log.d(
+            LOG_TAG,
+            "setLatestComponent: $latestPackage/$latestClassStr $mLatestPackage/$mLatestActivity"
+        )
     }
 
     private fun isPackageExists(packageName: String): Boolean {
@@ -175,7 +176,8 @@ class ActivityInfoProvider(private val context: Context) : AccessibilityDelegate
     }
 
     companion object {
-        private val WINDOW_PATTERN = Pattern.compile("Window\\{\\S+\\s\\S+\\s([^\\/]+)\\/?([^}]+)?\\}")
+        private val WINDOW_PATTERN =
+            Pattern.compile("Window\\{\\S+\\s\\S+\\s([^\\/]+)\\/?([^}]+)?\\}")
         private val DUMP_WINDOW_COMMAND = """
             oldActivity=""
             currentActivity=`dumpsys window windows | grep -E 'mCurrentFocus'`
@@ -193,7 +195,6 @@ class ActivityInfoProvider(private val context: Context) : AccessibilityDelegate
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun AccessibilityService.getWindow(windowId: Int): AccessibilityWindowInfo? {
     windows.forEach {
         if (it.id == windowId) {

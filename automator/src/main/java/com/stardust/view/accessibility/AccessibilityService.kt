@@ -35,7 +35,7 @@ open class AccessibilityService : android.accessibilityservice.AccessibilityServ
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         instance = this
         // Log.v(TAG, "onAccessibilityEvent: $event");
-        if (filterEventTypes?.contains(event.eventType) != true)
+        if (filterEventTypes?.contains(event.eventType) == false)
             return
         val type = event.eventType
         if (type == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED || type == AccessibilityEvent.TYPE_VIEW_FOCUSED) {

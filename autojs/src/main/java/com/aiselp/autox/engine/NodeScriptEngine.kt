@@ -234,7 +234,7 @@ class NodeScriptEngine(val context: Context, val uiHandler: UiHandler) :
         const val ID = "com.aiselp.autox.engine.NodeScriptEngine"
         private const val TAG = "NodeScriptEngine"
         fun getModuleDirectory(context: Context): File {
-            return File(context.filesDir, "node_modules")
+            return File(context.filesDir, "v7_modules")
         }
 
         fun initModuleResource(context: Context, appVersionChange: Boolean) {
