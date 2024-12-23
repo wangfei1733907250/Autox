@@ -1,7 +1,10 @@
 package com.stardust.autojs.project
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.Keep
+import com.google.gson.ExclusionStrategy
+import com.google.gson.FieldAttributes
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import com.stardust.app.GlobalAppContext
@@ -28,8 +31,10 @@ data class ProjectConfig(
     var launchConfig: LaunchConfig = LaunchConfig(),
     @SerializedName("useFeatures")
     var features: ArrayList<String> = arrayListOf(),
+    @Ignore
     var sourcePath: String? = null,
     var useNodejs: Boolean = false,
+    @Ignore
     var projectDirectory: String? = null,
     var outputPath: String? = null,
     val buildDir: String = "build",
@@ -39,7 +44,7 @@ data class ProjectConfig(
     var assets: List<Asset> = emptyList(),
     var signingConfig: SigningConfig = SigningConfig(),
     @SerializedName("encrypt-code")
-    var isEncrypt:Boolean = false
+    var isEncrypt: Boolean = false
 ) {
 
     fun getAbsolutePath(name: String): String {
@@ -51,10 +56,23 @@ data class ProjectConfig(
         return GSON.toJson(this)
     }
 
-    companion object {
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
+    annotation class Ignore
 
+    companion object {
+        private const val TAG = "ProjectConfig"
         const val CONFIG_FILE_NAME = "project.json"
-        private val GSON = GsonBuilder().serializeNulls().setPrettyPrinting().create()
+        private val GSON = GsonBuilder().serializeNulls().setPrettyPrinting()
+            .setExclusionStrategies(object : ExclusionStrategy {
+                override fun shouldSkipField(f: FieldAttributes?): Boolean {
+                    return f?.getAnnotation(Ignore::class.java) != null
+                }
+
+                override fun shouldSkipClass(clazz: Class<*>?): Boolean {
+                    return false
+                }
+            }).create()
 
         fun fromJson(json: String): ProjectConfig? {
             val config = GSON.fromJson(json, ProjectConfig::class.java)
@@ -80,14 +98,21 @@ data class ProjectConfig(
         }
 
         fun fromProject(path: File): ProjectConfig? {
-            val file = with(path) {
-                if (isFile) return@with this
-                if (isDirectory) return@with File(this, CONFIG_FILE_NAME)
-                null
-            }
+            var projectDirectory: File = path
+            val file: File? = if (path.isFile) {
+                projectDirectory = path.parentFile!!
+                path
+            } else if (path.isDirectory) {
+                File(path, CONFIG_FILE_NAME)
+            } else null
+
+            if (file?.isFile != true) return null
             return try {
-                file?.let { fromJson(it.readText()) }
-            } catch (_: Exception) {
+                fromJson(file.readText())?.apply {
+                    this.projectDirectory = projectDirectory.absolutePath
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "fromProject: $path \n${e.stackTraceToString()}")
                 null
             }
 

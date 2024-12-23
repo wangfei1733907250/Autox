@@ -34,18 +34,9 @@
 -keep public class com.tencent.bugly.**{*;}
 
 -dontwarn dalvik.**
--dontwarn com.tencent.smtt.**
-
--keep class com.tencent.smtt.** {
-    *;
-}
 
 -keep class com.tencent.tbs.** {
     *;
-}
-
--keep class org.autojs.autoxjs.inrt.BuildConfig{
-   *;
 }
 
 -keep interface kotlin.reflect.jvm.internal.impl.builtins.BuiltInsLoader{

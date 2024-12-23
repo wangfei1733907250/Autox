@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
+    implementation(libs.lifecycle.viewmodel.compose)
     implementation(project(":autojs"))
 
     testImplementation(libs.junit)

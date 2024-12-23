@@ -137,7 +137,7 @@ class TimedTask : BaseModel {
 
     companion object {
         const val TABLE = "TimedTask"
-        private const val FLAG_DISPOSABLE = 0
+        const val FLAG_DISPOSABLE = 0
         const val FLAG_SUNDAY = 0x1
         const val FLAG_MONDAY = 0x2
         const val FLAG_TUESDAY = 0x4
@@ -145,7 +145,7 @@ class TimedTask : BaseModel {
         const val FLAG_THURSDAY = 0x10
         const val FLAG_FRIDAY = 0x20
         const val FLAG_SATURDAY = 0x40
-        private const val FLAG_EVERYDAY = 0x7F
+        const val FLAG_EVERYDAY = 0x7F
         private const val REQUEST_CODE = 2000
         @JvmStatic
         fun getDayOfWeekTimeFlag(dayOfWeek: Int): Long {

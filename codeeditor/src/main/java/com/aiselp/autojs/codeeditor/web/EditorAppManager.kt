@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.webkit.WebViewAssetLoader
+import com.aiselp.autojs.codeeditor.EditActivity
 import com.aiselp.autojs.codeeditor.dialogs.LoadDialog
 import com.aiselp.autojs.codeeditor.plugins.AppController
 import com.aiselp.autojs.codeeditor.plugins.FileSystem
@@ -20,7 +21,7 @@ import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
-class EditorAppManager(val context: Activity) {
+class EditorAppManager(val context: Activity, val editorModel: EditActivity.EditorModel) {
     companion object {
         const val TAG = "EditorAppManager"
         const val WEB_DIST_PATH = "codeeditor/dist.zip"
@@ -61,7 +62,10 @@ class EditorAppManager(val context: Activity) {
 
     private fun installPlugin() {
         pluginManager.registerPlugin(FileSystem.TAG, FileSystem(context))
-        pluginManager.registerPlugin(AppController.TAG, AppController(context))
+        pluginManager.registerPlugin(
+            AppController.TAG,
+            AppController(context, editorModel, coroutineScope)
+        )
     }
 
     private suspend fun initWebResources() {

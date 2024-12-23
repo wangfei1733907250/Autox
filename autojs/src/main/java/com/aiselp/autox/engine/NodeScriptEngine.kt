@@ -13,12 +13,15 @@ import com.aiselp.autox.api.NodeConsole
 import com.aiselp.autox.module.NodeModuleResolver
 import com.caoccao.javet.entities.JavetEntityError
 import com.caoccao.javet.enums.V8AwaitMode
+import com.caoccao.javet.exceptions.BaseJavetScriptingException
+import com.caoccao.javet.exceptions.JavetScriptingError
 import com.caoccao.javet.interop.NodeRuntime
 import com.caoccao.javet.interop.V8Host
 import com.caoccao.javet.interop.converters.JavetProxyConverter
 import com.caoccao.javet.node.modules.NodeModuleModule
 import com.caoccao.javet.node.modules.NodeModuleProcess
 import com.caoccao.javet.values.V8Value
+import com.caoccao.javet.values.reference.V8ValueError
 import com.caoccao.javet.values.reference.V8ValuePromise
 import com.stardust.autojs.BuildConfig
 import com.stardust.autojs.engine.ScriptEngine
@@ -140,7 +143,6 @@ class NodeScriptEngine(val context: Context, val uiHandler: UiHandler) :
             if (resultListener.result.isActive) return@runBlocking null
             return@runBlocking withTimeout(10) {
                 val result = resultListener.await()
-                if (resultListener.stack != null) console.error(resultListener.stack)
                 if (resultListener.isRejectedCalled) {
                     exceptionHandling(result)
                 }
@@ -158,14 +160,37 @@ class NodeScriptEngine(val context: Context, val uiHandler: UiHandler) :
 
     private fun exceptionHandling(e: Any?) {
         when (e) {
-            is Throwable -> run {
-                console.error(e.stackTraceToString())
-                throw e
+            is V8ValueError -> run {
+                console.error(e.stack)
+                throw ScriptException(e.message)
             }
 
             is JavetEntityError -> run {
                 console.error(e.stack)
                 throw ScriptException(e.message)
+            }
+
+            is JavetScriptingError -> run {
+                console.error(e.stack)
+                throw ScriptException(e.message)
+            }
+
+            is BaseJavetScriptingException -> run {
+                if (e.cause != null) {
+                    exceptionHandling(e.cause)
+                }
+                e.scriptingError.let {
+                    console.error("${it.stack}\n  at ${it.resourceName}:${it.lineNumber}:${it.startColumn}")
+                }
+
+                throw e
+            }
+
+            is ScriptException -> throw e
+
+            is Throwable -> run {
+                console.error(e.stackTraceToString())
+                throw e
             }
 
             else -> throw ScriptException(e.toString())
@@ -209,7 +234,7 @@ class NodeScriptEngine(val context: Context, val uiHandler: UiHandler) :
         const val ID = "com.aiselp.autox.engine.NodeScriptEngine"
         private const val TAG = "NodeScriptEngine"
         fun getModuleDirectory(context: Context): File {
-            return File(context.filesDir, "node_modules")
+            return File(context.filesDir, "v7_modules")
         }
 
         fun initModuleResource(context: Context, appVersionChange: Boolean) {

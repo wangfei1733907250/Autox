@@ -8,8 +8,6 @@ import androidx.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EActivity;
 import org.autojs.autoxjs.R;
 import org.autojs.autojs.model.explorer.Explorer;
 import org.autojs.autojs.model.explorer.ExplorerDirPage;

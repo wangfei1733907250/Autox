@@ -13,7 +13,7 @@ import java.util.Locale
  */
 open class GlobalConsole(uiHandler: UiHandler) : ConsoleImpl(uiHandler) {
 
-    override fun println(level: Int, charSequence: CharSequence?): String {
+    override fun println(level: Int, charSequence: CharSequence?): String? {
         val log = "${DATE_FORMAT.format(Date())}/${getLevelChar(level)}: $charSequence"
         Log.d(TAG, log)
         super.println(level, log)

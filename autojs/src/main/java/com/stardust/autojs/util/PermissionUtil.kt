@@ -1,19 +1,18 @@
 package com.stardust.autojs.util
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RequiresApi
 import com.afollestad.materialdialogs.MaterialDialog
 import com.stardust.autojs.R
 
 private const val TAG = "PermissionUtil"
+
 object PermissionUtil {
     fun checkStoragePermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -23,10 +22,9 @@ object PermissionUtil {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
     fun showPermissionDialog(
-        context: Activity,
-        storagePermissionRequestLauncher: ActivityResultLauncher<Unit>
+        context: Context,
+        onPositive: () -> Unit
     ) {
         if (!checkStoragePermission()) {
             MaterialDialog.Builder(context)
@@ -35,7 +33,7 @@ object PermissionUtil {
                 .positiveText(R.string.ok)
                 .negativeText(R.string.cancel)
                 .onPositive { _, _ ->
-                    storagePermissionRequestLauncher.launch(Unit)
+                    onPositive()
                 }.show()
         }
     }

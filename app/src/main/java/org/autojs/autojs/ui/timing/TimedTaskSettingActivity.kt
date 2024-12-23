@@ -1,9 +1,5 @@
 package org.autojs.autojs.ui.timing
 
-import android.annotation.SuppressLint
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -11,92 +7,99 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.CompoundButton
-import android.widget.DatePicker
-import android.widget.EditText
-import android.widget.RadioButton
-import android.widget.TextView
-import android.widget.TimePicker
-import android.widget.Toast
-import com.github.aakira.expandablelayout.ExpandableRelativeLayout
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.aiselp.autox.ui.material3.components.BackTopAppBar
+import com.aiselp.autox.ui.material3.components.BaseDialog
+import com.aiselp.autox.ui.material3.components.DialogController
+import com.aiselp.autox.ui.material3.components.DialogTitle
+import com.aiselp.autox.ui.material3.theme.AppTheme
 import com.stardust.autojs.execution.ExecutionConfig
-import com.stardust.autojs.execution.ExecutionConfig.CREATOR.default
-import com.stardust.util.BiMap
-import com.stardust.util.BiMaps
+import com.stardust.toast
 import com.stardust.util.MapBuilder
+import kotlinx.coroutines.launch
 import org.autojs.autojs.external.ScriptIntents
 import org.autojs.autojs.external.receiver.DynamicBroadcastReceivers
 import org.autojs.autojs.model.script.ScriptFile
 import org.autojs.autojs.timing.IntentTask
 import org.autojs.autojs.timing.TaskReceiver
 import org.autojs.autojs.timing.TimedTask
-import org.autojs.autojs.timing.TimedTask.Companion.dailyTask
-import org.autojs.autojs.timing.TimedTask.Companion.disposableTask
 import org.autojs.autojs.timing.TimedTask.Companion.getDayOfWeekTimeFlag
-import org.autojs.autojs.timing.TimedTask.Companion.weeklyTask
-import org.autojs.autojs.timing.TimedTaskManager.addTask
-import org.autojs.autojs.timing.TimedTaskManager.getIntentTask
-import org.autojs.autojs.timing.TimedTaskManager.getTimedTask
-import org.autojs.autojs.timing.TimedTaskManager.removeTask
-import org.autojs.autojs.timing.TimedTaskManager.updateTask
-import org.autojs.autojs.ui.BaseActivity
+import org.autojs.autojs.timing.TimedTaskManager
 import org.autojs.autojs.ui.main.task.Task
 import org.autojs.autoxjs.R
-import org.autojs.autoxjs.databinding.ActivityTimedTaskSettingBinding
 import org.joda.time.LocalDate
 import org.joda.time.LocalDateTime
 import org.joda.time.LocalTime
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 /**
  * Created by Stardust on 2017/11/28.
  */
-class TimedTaskSettingActivity : BaseActivity() {
-    private lateinit var binding: ActivityTimedTaskSettingBinding
-    private var mDisposableTaskRadio: RadioButton? = null
-    private var mDailyTaskRadio: RadioButton? = null
-    private var mRunOnBroadcastRadio: RadioButton? = null
-    private var mOtherBroadcastAction: EditText? = null
-    private var mDisposableTaskTime: TextView? = null
-    private var mDisposableTaskDate: TextView? = null
-    private var mDailyTaskTimePicker: TimePicker? = null
-    private var mWeeklyTaskTimePicker: TimePicker? = null
-
-    private val mDayOfWeekCheckBoxes: MutableList<CheckBox> = ArrayList()
-
+class TimedTaskSettingActivity : AppCompatActivity() {
     private var mScriptFile: ScriptFile? = null
     private var mTimedTask: TimedTask? = null
     private var mIntentTask: IntentTask? = null
 
+    @OptIn(ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityTimedTaskSettingBinding.inflate(
-            layoutInflater
-        )
-        mDailyTaskRadio = binding.dailyTaskRadio
-        mDisposableTaskRadio = binding.disposableTaskRadio
-        mRunOnBroadcastRadio = binding.runOnOtherBroadcast
-        mOtherBroadcastAction = binding.action
-        mDisposableTaskTime = binding.disposableTaskTime
-        mDisposableTaskDate = binding.disposableTaskDate
-        mDailyTaskTimePicker = binding.dailyTaskTimePicker
-        mWeeklyTaskTimePicker = binding.weeklyTaskTimePicker
-        setContentView(binding.root)
         val taskId = intent.getLongExtra(EXTRA_TASK_ID, -1)
         if (taskId != -1L) {
-            mTimedTask = getTimedTask(taskId)
+            mTimedTask = TimedTaskManager.getTimedTask(taskId)
             mScriptFile = ScriptFile(mTimedTask!!.scriptPath!!)
         } else {
             val intentTaskId = intent.getLongExtra(EXTRA_INTENT_TASK_ID, -1)
             if (intentTaskId != -1L) {
-                mIntentTask = getIntentTask(intentTaskId)
+                mIntentTask = TimedTaskManager.getIntentTask(intentTaskId)
                 mScriptFile = ScriptFile(mIntentTask!!.scriptPath!!)
             } else {
                 val path = intent.getStringExtra(ScriptIntents.EXTRA_KEY_PATH)
@@ -106,296 +109,477 @@ class TimedTaskSettingActivity : BaseActivity() {
                 mScriptFile = ScriptFile(path)
             }
         }
-        setupViews()
-    }
-
-    private fun setupViews() {
-        setToolbarAsBack(getString(R.string.text_timed_task))
-        binding.toolbar.subtitle = mScriptFile!!.name
-        mDailyTaskTimePicker!!.setIs24HourView(true)
-        mWeeklyTaskTimePicker!!.setIs24HourView(true)
-        findDayOfWeekCheckBoxes(binding.weeklyTaskContainer)
-        setUpTaskSettings()
-        binding.disposableTaskTimeContainer.setOnClickListener { showDisposableTaskTimePicker() }
-        binding.disposableTaskDateContainer.setOnClickListener { showDisposableTaskDatePicker() }
-        //        @CheckedChange({R.id.daily_task_radio, R.id.weekly_task_radio, R.id.disposable_task_radio, R.id.run_on_broadcast})
-        val listener =
-            View.OnClickListener { view: View -> onCheckedChanged(view as CompoundButton) }
-        binding.dailyTaskRadio.setOnClickListener(listener)
-        binding.weeklyTaskRadio.setOnClickListener(listener)
-        binding.disposableTaskRadio.setOnClickListener(listener)
-        binding.runOnBroadcast.setOnClickListener(listener)
-    }
-
-    private fun findDayOfWeekCheckBoxes(parent: ViewGroup) {
-        for (i in 0 until parent.childCount) {
-            val child = parent.getChildAt(i)
-            if (child is CheckBox) {
-                mDayOfWeekCheckBoxes.add(child)
-            } else if (child is ViewGroup) {
-                findDayOfWeekCheckBoxes(child)
-            }
-            if (mDayOfWeekCheckBoxes.size >= 7) break
-        }
-    }
-
-    private fun setUpTaskSettings() {
-        mDisposableTaskDate!!.text =
-            DATE_FORMATTER.print(LocalDate.now())
-        mDisposableTaskTime!!.text =
-            TIME_FORMATTER.print(LocalTime.now())
-        if (mTimedTask != null) {
-            setupTime()
-            return
-        }
-        if (mIntentTask != null) {
-            setupAction()
-            return
-        }
-        mDailyTaskRadio!!.isChecked = true
-    }
-
-    private fun setupAction() {
-        mRunOnBroadcastRadio!!.isChecked = true
-        val buttonId = ACTIONS.getKey(mIntentTask!!.action)
-        if (buttonId == null) {
-            binding.runOnOtherBroadcast.isChecked = true
-            mOtherBroadcastAction!!.setText(mIntentTask!!.action)
-        } else {
-            (findViewById<View>(buttonId) as RadioButton).isChecked = true
-        }
-    }
-
-    private fun setupTime() {
-        if (mTimedTask!!.isDisposable) {
-            mDisposableTaskRadio!!.isChecked = true
-            mDisposableTaskTime!!.text = TIME_FORMATTER.print(
-                mTimedTask!!.millis
-            )
-            mDisposableTaskDate!!.text = DATE_FORMATTER.print(
-                mTimedTask!!.millis
-            )
-            return
-        }
-        val time = LocalTime.fromMillisOfDay(mTimedTask!!.millis)
-        mDailyTaskTimePicker!!.currentHour = time.hourOfDay
-        mDailyTaskTimePicker!!.currentMinute = time.minuteOfHour
-        mWeeklyTaskTimePicker!!.currentHour = time.hourOfDay
-        mWeeklyTaskTimePicker!!.currentMinute = time.minuteOfHour
-        if (mTimedTask!!.isDaily) {
-            mDailyTaskRadio!!.isChecked = true
-        } else {
-            binding.weeklyTaskRadio.isChecked = true
-            for (i in mDayOfWeekCheckBoxes.indices) {
-                mDayOfWeekCheckBoxes[i].isChecked = mTimedTask!!.hasDayOfWeek(i + 1)
-            }
-        }
-    }
-
-
-    fun onCheckedChanged(button: CompoundButton) {
-        val relativeLayout = findExpandableLayoutOf(button)
-        if (button.isChecked) {
-            relativeLayout.post { relativeLayout.expand() }
-        } else {
-            relativeLayout.collapse()
-        }
-    }
-
-    private fun findExpandableLayoutOf(button: CompoundButton): ExpandableRelativeLayout {
-        val parent = button.parent as ViewGroup
-        for (i in 0 until parent.childCount) {
-            if (parent.getChildAt(i) === button) {
-                return (parent.getChildAt(i + 1) as ExpandableRelativeLayout)
-            }
-        }
-        throw IllegalStateException("findExpandableLayout: button = " + button + ", parent = " + parent + ", childCount = " + parent.childCount)
-    }
-
-    fun showDisposableTaskTimePicker() {
-        val time = TIME_FORMATTER.parseLocalTime(
-            mDisposableTaskTime!!.text.toString()
-        )
-        TimePickerDialog(this, { view: TimePicker?, hourOfDay: Int, minute: Int ->
-            mDisposableTaskTime!!.text = TIME_FORMATTER.print(
-                LocalTime(hourOfDay, minute)
-            )
-        }, time.hourOfDay, time.minuteOfHour, true)
-            .show()
-    }
-
-
-    fun showDisposableTaskDatePicker() {
-        val date = DATE_FORMATTER.parseLocalDate(
-            mDisposableTaskDate!!.text.toString()
-        )
-        DatePickerDialog(
-            this, { view: DatePicker?, year: Int, month: Int, dayOfMonth: Int ->
-                mDisposableTaskDate!!.text = DATE_FORMATTER.print(
-                    LocalDate(year, month + 1, dayOfMonth)
-                )
-            },
-            date.year, date.monthOfYear - 1, date.dayOfMonth
-        ).show()
-    }
-
-    private fun createTimedTask(): TimedTask? {
-        return if (mDisposableTaskRadio!!.isChecked) {
-            createDisposableTask()
-        } else if (mDailyTaskRadio!!.isChecked) {
-            createDailyTask()
-        } else {
-            createWeeklyTask()
-        }
-    }
-
-    private fun createWeeklyTask(): TimedTask? {
-        var timeFlag: Long = 0
-        for (i in mDayOfWeekCheckBoxes.indices) {
-            if (mDayOfWeekCheckBoxes[i].isChecked) {
-                timeFlag = timeFlag or getDayOfWeekTimeFlag(i + 1)
-            }
-        }
-        if (timeFlag == 0L) {
-            Toast.makeText(
-                this,
-                R.string.text_weekly_task_should_check_day_of_week,
-                Toast.LENGTH_SHORT
-            ).show()
-            return null
-        }
-        val time =
-            LocalTime(mWeeklyTaskTimePicker!!.currentHour, mWeeklyTaskTimePicker!!.currentMinute)
-        return weeklyTask(time, timeFlag, mScriptFile!!.path, default)
-    }
-
-    private fun createDailyTask(): TimedTask {
-        val time =
-            LocalTime(mDailyTaskTimePicker!!.currentHour, mDailyTaskTimePicker!!.currentMinute)
-        return dailyTask(time, mScriptFile!!.path, ExecutionConfig())
-    }
-
-    private fun createDisposableTask(): TimedTask? {
-        val time = TIME_FORMATTER.parseLocalTime(
-            mDisposableTaskTime!!.text.toString()
-        )
-        val date = DATE_FORMATTER.parseLocalDate(
-            mDisposableTaskDate!!.text.toString()
-        )
-        val dateTime = LocalDateTime(
-            date.year, date.monthOfYear, date.dayOfMonth,
-            time.hourOfDay, time.minuteOfHour
-        )
-        if (dateTime.isBefore(LocalDateTime.now())) {
-            Toast.makeText(this, R.string.text_disposable_task_time_before_now, Toast.LENGTH_SHORT)
-                .show()
-            return null
-        }
-        return disposableTask(dateTime, mScriptFile!!.path, default)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_timed_task_setting, menu)
-        return true
-    }
-
-    @SuppressLint("BatteryLife")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_done) {
-            if (!(getSystemService(POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(
-                    packageName
-                )
-            ) {
-                try {
-                    startActivityForResult(
-                        Intent().setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                            .setData(Uri.parse("package:$packageName")), REQUEST_CODE_IGNORE_BATTERY
-                    )
-                } catch (e: ActivityNotFoundException) {
-                    e.printStackTrace()
-                    createOrUpdateTask()
+        setContent {
+            AppTheme {
+                val viewModel = viewModel(TimedTaskSettingModel::class.java)
+                var current: TaskModel by remember {
+                    mIntentTask?.let {
+                        viewModel.intentTask.initModel(it)
+                        return@remember mutableStateOf(viewModel.intentTask)
+                    }
+                    mutableStateOf(viewModel.initModel(mTimedTask))
                 }
-            } else {
-                createOrUpdateTask()
+                Scaffold(
+                    topBar = {
+                        BackTopAppBar(
+                            title = stringResource(R.string.text_timed_task),
+                            actions = {
+                                IconButton(onClick = {
+                                    if (!checkPowerOptimizations()) return@IconButton
+                                    val result = runCatching {
+                                        if (current == viewModel.intentTask) {
+                                            val intentTask =
+                                                viewModel.intentTask.createIntentTask(
+                                                    this@TimedTaskSettingActivity,
+                                                    mScriptFile!!.path
+                                                )
+                                            registerIntentTask(intentTask)
+                                        }
+                                        val task = current.createTimedTask(
+                                            this@TimedTaskSettingActivity,
+                                            mScriptFile!!.path
+                                        )
+                                        checkNotNull(task)
+                                        registerTask(task)
+                                    }
+                                }) {
+                                    Icon(
+                                        Icons.Default.Done,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                        )
+                    },
+                ) {
+                    Column(modifier = Modifier.padding(it)) {
+                        mScriptFile?.let {
+                            Text(
+                                text = it.name,
+                                modifier = Modifier.padding(16.dp),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
+
+                        FlowRow(modifier = Modifier.fillMaxWidth()) {
+                            RadioOption(
+                                Modifier,
+                                viewModel.disposableTask === current,
+                                stringResource(R.string.text_disposable_task)
+                            ) { current = viewModel.disposableTask }
+                            RadioOption(
+                                Modifier,
+                                viewModel.dailyTask === current,
+                                stringResource(R.string.text_daily_task)
+                            ) { current = viewModel.dailyTask }
+                            RadioOption(
+                                Modifier,
+                                viewModel.weeklyTask === current,
+                                stringResource(R.string.text_weekly_task)
+                            ) { current = viewModel.weeklyTask }
+                            RadioOption(
+                                Modifier,
+                                viewModel.intentTask === current,
+                                stringResource(R.string.text_run_on_broadcast)
+                            ) { current = viewModel.intentTask }
+
+                        }
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                                ToggleAnimation(current === viewModel.disposableTask) {
+                                    viewModel.disposableTask.Ui()
+                                }
+                                ToggleAnimation(current === viewModel.dailyTask) {
+                                    viewModel.dailyTask.Ui()
+                                }
+                                ToggleAnimation(current === viewModel.weeklyTask) {
+                                    viewModel.weeklyTask.Ui()
+                                }
+                                ToggleAnimation(current === viewModel.intentTask) {
+                                    viewModel.intentTask.Ui()
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            return true
         }
-        return super.onOptionsItemSelected(item)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_CODE_IGNORE_BATTERY) {
-            Log.d(LOG_TAG, "result code = $requestCode")
-            createOrUpdateTask()
+    @Composable
+    private fun ToggleAnimation(visible: Boolean, content: @Composable () -> Unit) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = expandVertically(),
+            exit = fadeOut()
+        ) {
+            content()
         }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun createOrUpdateTask() {
-        if (mRunOnBroadcastRadio!!.isChecked) {
-            createOrUpdateIntentTask()
-            return
+    @Composable
+    private fun RadioOption(
+        modifier: Modifier = Modifier,
+        selected: Boolean,
+        label: String,
+        onClick: () -> Unit
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable { onClick() }
+                .then(modifier),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButton(selected = selected, onClick = onClick)
+            Text(text = label)
         }
-        val task = createTimedTask() ?: return
-        if (mTimedTask == null) {
-            addTask(task)
-            if (mIntentTask != null) {
-                removeTask(mIntentTask!!)
-            }
-            Toast.makeText(this, R.string.text_already_create, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun checkPowerOptimizations(): Boolean {
+        val powerManager = (getSystemService(POWER_SERVICE) as PowerManager)
+        if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
+            startActivity(
+                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                    .setData(Uri.parse("package:$packageName")),
+            )
+            return false
+        } else return true
+    }
+
+    private fun registerTask(timedTask: TimedTask) {
+        val oldTask = mTimedTask
+        if (oldTask == null) {
+            TimedTaskManager.addTask(timedTask)
         } else {
-            task.id = mTimedTask!!.id
-            updateTask(task)
+            timedTask.id = oldTask.id
+            TimedTaskManager.updateTask(timedTask)
+        }
+        toast(this, R.string.text_already_create)
+        if (mIntentTask != null) {
+            TimedTaskManager.removeTask(mIntentTask!!)
         }
         finish()
     }
 
 
-    private fun createOrUpdateIntentTask() {
-        val buttonId = binding!!.broadcastGroup.checkedRadioButtonId
-        if (buttonId == -1) {
-            Toast.makeText(this, R.string.error_empty_selection, Toast.LENGTH_SHORT).show()
+    private fun registerIntentTask(task: IntentTask) {
+        if (task.action.isNullOrEmpty()) {
+            toast(this, R.string.error_empty_selection)
             return
         }
-        val action: String?
-        if (buttonId == R.id.run_on_other_broadcast) {
-            action = mOtherBroadcastAction!!.text.toString()
-            if (action.isEmpty()) {
-                mOtherBroadcastAction!!.error = getString(R.string.text_should_not_be_empty)
-                return
-            }
-        } else {
-            action = ACTIONS[buttonId]
-        }
-        val task = IntentTask()
-        task.action = action
-        task.scriptPath = mScriptFile!!.path
-        task.isLocal = action == DynamicBroadcastReceivers.ACTION_STARTUP
+
         if (mIntentTask != null) {
             task.id = mIntentTask!!.id
-            updateTask(task)
-            Toast.makeText(this, R.string.text_already_create, Toast.LENGTH_SHORT).show()
+            TimedTaskManager.updateTask(task)
         } else {
-            addTask(task)
-            if (mTimedTask != null) {
-                removeTask(mTimedTask!!)
+            TimedTaskManager.addTask(task)
+        }
+        toast(this, R.string.text_already_create)
+        if (mTimedTask != null) {
+            TimedTaskManager.removeTask(mTimedTask!!)
+        }
+        finish()
+    }
+
+    interface TaskModel {
+        fun createTimedTask(context: Context, scriptFile: String): TimedTask?
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    class TimedTaskSettingModel : ViewModel() {
+        val disposableTask = DisposableTask()
+        val dailyTask = DailyTask()
+        val weeklyTask = WeeklyTask()
+        val intentTask = IntentTask()
+
+        fun initModel(timedTask: TimedTask?): TaskModel {
+            if (timedTask == null) return disposableTask
+            if (timedTask.timeFlag == TimedTask.FLAG_DISPOSABLE.toLong()) {
+                disposableTask.initModel(timedTask)
+                return disposableTask
+            }
+            if (timedTask.timeFlag == TimedTask.FLAG_EVERYDAY.toLong()) {
+                dailyTask.initModel(timedTask)
+                return dailyTask
+            }
+            weeklyTask.initModel(timedTask)
+            return weeklyTask
+        }
+
+        class DisposableTask : TaskModel {
+            private val time = LocalTime.now()
+            var timePickerState = TimePickerState(time.hourOfDay, time.minuteOfHour, true)
+            val datePickerState =
+                DatePickerState(Locale.getDefault(), initialSelectedDateMillis = Date().time)
+            val timeDialog = DialogController()
+            val dateDialog = DialogController()
+
+            override fun createTimedTask(context: Context, scriptFile: String): TimedTask? {
+                val date = datePickerState.selectedDateMillis.let {
+                    if (it == null) return null
+                    LocalDate(it)
+                }
+                val dateTime = LocalDateTime(
+                    date.year, date.monthOfYear, date.dayOfMonth,
+                    timePickerState.hour, timePickerState.minute
+                )
+                if (dateTime.isBefore(LocalDateTime.now())) {
+                    toast(context, R.string.text_disposable_task_time_before_now)
+                    return null
+                }
+                return TimedTask.disposableTask(dateTime, scriptFile, ExecutionConfig.default)
+            }
+
+            fun initModel(timedTask: TimedTask) {
+                val dateTime = LocalDateTime(timedTask.millis)
+                datePickerState.selectedDateMillis = timedTask.millis
+                timePickerState = TimePickerState(dateTime.hourOfDay, dateTime.minuteOfHour, true)
             }
         }
 
-        finish()
+        class DailyTask : TaskModel {
+            private val time = LocalTime.now()
+            var timePickerState = TimePickerState(time.hourOfDay, time.minuteOfHour, true)
+            override fun createTimedTask(context: Context, scriptFile: String): TimedTask? {
+                val time = LocalTime(timePickerState.hour, timePickerState.minute)
+                return TimedTask.dailyTask(time, scriptFile, ExecutionConfig.default)
+            }
+
+            fun initModel(timedTask: TimedTask) {
+                val dateTime = LocalTime.fromMillisOfDay(timedTask.millis)
+                timePickerState = TimePickerState(dateTime.hourOfDay, dateTime.minuteOfHour, true)
+            }
+        }
+
+        class WeeklyTask : TaskModel {
+            private val time = LocalTime.now()
+            var timePickerState = TimePickerState(time.hourOfDay, time.minuteOfHour, true)
+            val chooseDays = mutableSetOf<Int>()
+            override fun createTimedTask(context: Context, scriptFile: String): TimedTask? {
+                var timeFlag: Long = 0
+                for (i in chooseDays) {
+                    timeFlag = timeFlag or getDayOfWeekTimeFlag(i)
+                }
+                if (timeFlag == 0L) {
+                    toast(context, R.string.text_weekly_task_should_check_day_of_week)
+                    return null
+                }
+                val time = LocalTime(timePickerState.hour, timePickerState.minute)
+                return TimedTask.weeklyTask(time, timeFlag, scriptFile, ExecutionConfig.default)
+            }
+
+            fun initModel(timedTask: TimedTask) {
+                val dateTime = LocalTime.fromMillisOfDay(timedTask.millis)
+                timePickerState = TimePickerState(dateTime.hourOfDay, dateTime.minuteOfHour, true)
+                for (i in 1..7) {
+                    if (timedTask.hasDayOfWeek(i)) {
+                        chooseDays.add(i)
+                    }
+                }
+            }
+        }
+
+        class IntentTask : TaskModel {
+            var action: String? = null
+            override fun createTimedTask(context: Context, scriptFile: String): TimedTask? {
+                return null
+            }
+
+            fun createIntentTask(
+                context: Context,
+                scriptFile: String
+            ): org.autojs.autojs.timing.IntentTask {
+                val task = org.autojs.autojs.timing.IntentTask()
+                task.action = action
+                task.scriptPath = scriptFile
+                task.isLocal = action == DynamicBroadcastReceivers.ACTION_STARTUP
+                return task
+            }
+
+            fun initModel(intentTask: org.autojs.autojs.timing.IntentTask) {
+                action = intentTask.action
+            }
+
+        }
     }
+
+    @Composable
+    private fun TimedTaskSettingModel.IntentTask.Ui() {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
+            val otherAction = "other"
+            var u: String? by remember {
+                if (action != null) {
+                    if (ACTION_DESC_MAP.containsKey(action)) {
+                        mutableStateOf(action)
+                    } else mutableStateOf(otherAction)
+                } else mutableStateOf(null)
+            }
+            for ((action, id) in ACTION_DESC_MAP) {
+                RadioOption(
+                    modifier = Modifier.fillMaxWidth(),
+                    selected = action == u,
+                    label = stringResource(id)
+                ) {
+                    this@Ui.action = action
+                    u = action
+                }
+            }
+
+            var otherActionValue by remember { mutableStateOf(action ?: "") }
+            LaunchedEffect(otherActionValue) {
+                if (u == otherAction) {
+                    action = otherActionValue
+                }
+            }
+            RadioOption(
+                modifier = Modifier.fillMaxWidth(),
+                selected = u == otherAction,
+                label = stringResource(R.string.text_run_on_other_broadcast)
+            ) { u = otherAction;action = otherActionValue }
+            Column {
+                TextField(value = otherActionValue,
+                    label = { Text(text = stringResource(R.string.text_broadcast_action)) },
+                    onValueChange = { otherActionValue = it }
+                )
+            }
+        }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+    @Composable
+    private fun TimedTaskSettingModel.WeeklyTask.Ui() {
+        val days = listOf(
+            stringResource(R.string.text_day1),
+            stringResource(R.string.text_day2),
+            stringResource(R.string.text_day3),
+            stringResource(R.string.text_day4),
+            stringResource(R.string.text_day5),
+            stringResource(R.string.text_day6),
+            stringResource(R.string.text_day7),
+        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TimeInput(state = timePickerState)
+            FlowRow(modifier = Modifier.fillMaxWidth()) {
+                days.forEachIndexed { index, day ->
+                    var selected by remember { mutableStateOf(chooseDays.contains(index + 1)) }
+                    fun checked(selected: Boolean) {
+                        if (selected) {
+                            chooseDays.add(index + 1)
+                        } else {
+                            chooseDays.remove(index + 1)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.clickable {
+                            selected = !selected
+                            checked(selected)
+                        },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(checked = selected,
+                            onCheckedChange = {
+                                selected = it
+                                checked(it)
+                            })
+                        Text(text = day)
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun TimedTaskSettingModel.DailyTask.Ui() {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TimeInput(state = timePickerState)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun TimedTaskSettingModel.DisposableTask.Ui() {
+        val scope = rememberCoroutineScope()
+        timeDialog.BaseDialog(
+            onDismissRequest = { scope.launch { timeDialog.dismiss() } },
+            title = { DialogTitle("设置时间") },
+            onPositiveClick = { scope.launch { timeDialog.dismiss() } },
+            positiveText = stringResource(R.string.ok)
+        ) {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                TimeInput(state = timePickerState)
+            }
+        }
+        dateDialog.BaseDialog(
+            onDismissRequest = { scope.launch { dateDialog.dismiss() } },
+            title = { DialogTitle("设置日期") },
+            onPositiveClick = { scope.launch { dateDialog.dismiss() } },
+            positiveText = stringResource(R.string.ok)
+        ) {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                DatePicker(state = datePickerState)
+            }
+        }
+        Column {
+            val iconModifier = Modifier.size(24.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { scope.launch { timeDialog.show() } },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = iconModifier,
+                    painter = painterResource(R.drawable.ic_access_time_black_48dp),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "${timePickerState.hour}:${timePickerState.minute}")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { scope.launch { dateDialog.show() } },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = iconModifier,
+                    painter = painterResource(R.drawable.ic_date_range_black_48dp),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                val date = datePickerState.selectedDateMillis.let {
+                    if (it == null) LocalDate()
+                    else LocalDate(it)
+                }
+                Text(text = "${date.year}-${date.monthOfYear}-${date.dayOfMonth}")
+            }
+        }
+    }
+
 
     companion object {
         const val EXTRA_INTENT_TASK_ID: String = "intent_task_id"
         const val EXTRA_TASK_ID: String = TaskReceiver.EXTRA_TASK_ID
 
-        private val TIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("HH:mm")
-        private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")
-        private const val REQUEST_CODE_IGNORE_BATTERY = 27101
-
         private const val LOG_TAG = "TimedTaskSettings"
 
-        fun reviseTimeTask(context: Context,task: Task.PendingTask){
+        fun reviseTimeTask(context: Context, task: Task.PendingTask) {
             val intent = Intent(context, TimedTaskSettingActivity::class.java)
             task.timedTask?.let {
                 intent.putExtra(EXTRA_TASK_ID, it.id)
@@ -425,24 +609,6 @@ class TimedTaskSettingActivity : BaseActivity() {
             .put(Intent.ACTION_HEADSET_PLUG, R.string.text_run_on_headset_plug)
             .put(Intent.ACTION_CONFIGURATION_CHANGED, R.string.text_run_on_config_change)
             .put(Intent.ACTION_TIME_TICK, R.string.text_run_on_time_tick)
-            .build()
-
-        private val ACTIONS: BiMap<Int, String?> = BiMaps.newBuilder<Int, String?>()
-            .put(R.id.run_on_startup, DynamicBroadcastReceivers.ACTION_STARTUP)
-            .put(R.id.run_on_boot, Intent.ACTION_BOOT_COMPLETED)
-            .put(R.id.run_on_screen_off, Intent.ACTION_SCREEN_OFF)
-            .put(R.id.run_on_screen_on, Intent.ACTION_SCREEN_ON)
-            .put(R.id.run_on_screen_unlock, Intent.ACTION_USER_PRESENT)
-            .put(R.id.run_on_battery_change, Intent.ACTION_BATTERY_CHANGED)
-            .put(R.id.run_on_power_connect, Intent.ACTION_POWER_CONNECTED)
-            .put(R.id.run_on_power_disconnect, Intent.ACTION_POWER_DISCONNECTED)
-            .put(R.id.run_on_conn_change, ConnectivityManager.CONNECTIVITY_ACTION)
-            .put(R.id.run_on_package_install, Intent.ACTION_PACKAGE_ADDED)
-            .put(R.id.run_on_package_uninstall, Intent.ACTION_PACKAGE_REMOVED)
-            .put(R.id.run_on_package_update, Intent.ACTION_PACKAGE_REPLACED)
-            .put(R.id.run_on_headset_plug, Intent.ACTION_HEADSET_PLUG)
-            .put(R.id.run_on_config_change, Intent.ACTION_CONFIGURATION_CHANGED)
-            .put(R.id.run_on_time_tick, Intent.ACTION_TIME_TICK)
             .build()
     }
 }

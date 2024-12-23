@@ -36,5 +36,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     testImplementation(libs.junit)
     api(libs.appcompat)
+    implementation(libs.rxjava3.rxandroid)
+    implementation(libs.kotlinx.coroutines.android)
     api(project(":common"))
 }

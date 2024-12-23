@@ -17,7 +17,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.Configuration
 import com.aiselp.autox.engine.NodeScriptEngine.Companion.initModuleResource
 import com.aiselp.autox.ui.material3.activity.ErrorReportActivity
-import com.flurry.android.FlurryAgent
 import com.stardust.app.GlobalAppContext
 import com.stardust.autojs.core.pref.PrefKey
 import com.stardust.autojs.servicecomponents.ScriptServiceConnection
@@ -48,18 +47,10 @@ class App : Application(), Configuration.Provider {
             this, com.stardust.app.BuildConfig.generate(BuildConfig::class.java)
         )
         instance = WeakReference(this)
-        setUpStaticsTool()
         setUpDebugEnvironment()
         init()
     }
 
-    private fun setUpStaticsTool() {
-        if (BuildConfig.DEBUG)
-            return
-        FlurryAgent.Builder()
-            .withLogEnabled(BuildConfig.DEBUG)
-            .build(this, "D42MH48ZN4PJC5TKNYZD")
-    }
 
     private fun setUpDebugEnvironment() {
         ErrorReportActivity.install(this, MainActivity::class.java)
@@ -169,10 +160,12 @@ class App : Application(), Configuration.Provider {
             get() = instance.get()!!
     }
 
-    override fun getWorkManagerConfiguration(): Configuration {
-        return Configuration.Builder()
-            .setMinimumLoggingLevel(Log.INFO)
-            .build()
-    }
+
+    override val workManagerConfiguration: Configuration
+        get() {
+            return Configuration.Builder()
+                .setMinimumLoggingLevel(Log.INFO)
+                .build()
+        }
 
 }

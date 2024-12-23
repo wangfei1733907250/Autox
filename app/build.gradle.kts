@@ -164,8 +164,6 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.webkit)
 
-    implementation(libs.bundles.accompanist)
-
     implementation(libs.compose.ui)
     implementation(libs.compose.material)
     implementation(libs.compose.ui.tooling.preview)
@@ -228,14 +226,10 @@ dependencies {
     implementation("net.danlew:android.joda:2.10.14")
     // Tasker Plugin
     implementation("com.twofortyfouram:android-plugin-client-sdk-for-locale:4.0.3")
-    // Flurry
-    implementation("com.flurry.android:analytics:13.1.0@aar")
-    // tencent
-    implementation("com.tencent.tbs:tbssdk:44181")
     // MaterialDialogCommon
     implementation("com.afollestad.material-dialogs:commons:0.9.2.3")
     // WorkManager
-    implementation("androidx.work:work-runtime:2.7.1")
+    implementation(libs.androidx.work)
     // Optional, if you use support library fragments:
     implementation(project(":autojs"))
     implementation(project(":apkbuilder"))
@@ -264,7 +258,7 @@ dependencies {
     implementation("com.leinardi.android:speed-dial.compose:1.0.0-alpha03")
     //TextView markdown
     implementation("io.noties.markwon:core:4.6.2")
-    implementation("androidx.viewpager2:viewpager2:1.1.0-beta01")
+    implementation(libs.androidx.viewpager2)
     implementation(libs.coil.compose)
 }
 

@@ -19,17 +19,15 @@ import java.io.File
 interface Task : TaskInfo {
     fun cancel()
     class PendingTask : Task {
-        var timedTask: TimedTask?
-        var mIntentTask: IntentTask?
+        var timedTask: TimedTask? = null
+        var mIntentTask: IntentTask? = null
 
         constructor(timedTask: TimedTask?) {
             this.timedTask = timedTask
-            mIntentTask = null
         }
 
         constructor(intentTask: IntentTask?) {
             mIntentTask = intentTask
-            timedTask = null
         }
 
         fun taskEquals(task: Any): Boolean {

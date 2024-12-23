@@ -7,8 +7,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.stardust.app.GlobalAppContext
+import com.stardust.autojs.core.console.LogEntry
 import com.stardust.autojs.servicecomponents.BinderConsoleListener
-import com.stardust.autojs.servicecomponents.ScriptServiceConnection
+import com.stardust.autojs.servicecomponents.EngineController
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
 import io.ktor.websocket.FrameType
@@ -82,10 +83,10 @@ object DevPlugin {
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
-            ScriptServiceConnection.GlobalConnection.registerGlobalConsoleListener(
+            EngineController.registerGlobalConsoleListener(
                 object : BinderConsoleListener {
-                    override fun onPrintln(text: String) {
-                        log(text)
+                    override fun onPrintln(log: LogEntry) {
+                        log(log.content.toString())
                     }
                 }
             )

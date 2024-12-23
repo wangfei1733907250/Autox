@@ -1,18 +1,17 @@
 [versions]
-activity-compose = "1.8.2"
+activity-compose = "1.9.1"
 coil-compose-version = "2.0.0-rc03"
 core-ktx = "1.8.0"
 google-gson = "2.9.1"
 junit = "4.13.2"
 kotlinx-coroutines-android = "1.6.2"
-lifecycle = "2.7.0"
+lifecycle = "2.8.4"
 okhttp = "4.10.0"
 ktor-version = "2.0.3"
-androidx-test-ext-junit = "1.1.5"
-espresso-core = "3.5.1"
-appcompat = "1.6.1"
-material = "1.11.0"
-accompanist-version = "0.24.13-rc"
+androidx-test-ext-junit = "1.2.1"
+espresso-core = "3.6.1"
+appcompat = "1.7.0"
+material = "1.12.0"
 savedstate = "1.2.1"
 mlkit-text = "16.0.0-beta5"
 
@@ -20,21 +19,23 @@ mlkit-text = "16.0.0-beta5"
 # androidx
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
 
+androidx-viewpager2 = "androidx.viewpager2:viewpager2:1.1.0"
+androidx-work = "androidx.work:work-runtime:2.9.1"
 androidx-swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version = "2.1.4" }
-androidx-activity-ktx = "androidx.activity:activity-ktx:1.9.0"
-androidx-webkit = "androidx.webkit:webkit:1.10.0"
+androidx-activity-ktx = "androidx.activity:activity-ktx:1.9.1"
+androidx-webkit = "androidx.webkit:webkit:1.11.0"
 documentfile = "androidx.documentfile:documentfile:1.0.1"
 androidx-savedstate = { module = "androidx.savedstate:savedstate", version.ref = "savedstate" }
 androidx-savedstate-ktx = { module = "androidx.savedstate:savedstate-ktx", version.ref = "savedstate" }
 preference-ktx = "androidx.preference:preference-ktx:1.2.1"
-androidx-annotation = "androidx.annotation:annotation:1.7.1"
+androidx-annotation = "androidx.annotation:annotation:1.8.1"
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 # material ======================================
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-compose-material3 = "androidx.compose.material3:material3:1.2.1"
-compose-material3-window-size = "androidx.compose.material3:material3-window-size-class:1.2.1"
+compose-material3 = "androidx.compose.material3:material3:1.3.1"
+compose-material3-window-size = "androidx.compose.material3:material3-window-size-class:1.3.1"
 compose-material3-adaptive-navigation-suite = "androidx.compose.material3:material3-adaptive-navigation-suite:1.0.0-alpha06"
 
 #lifecycle
@@ -59,16 +60,7 @@ compose-foundation = { module = "androidx.compose.foundation:foundation" }
 compose-foundation-layout = { module = "androidx.compose.foundation:foundation-layout" }
 compose-animation-core = { module = "androidx.compose.animation:animation-core" }
 compose-animation = { module = "androidx.compose.animation:animation" }
-# accompanist
-accompanist-webview = { module = "com.google.accompanist:accompanist-webview", version.ref = "accompanist-version" }
-accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist-version" }
-accompanist-insets-ui = { module = "com.google.accompanist:accompanist-insets-ui", version.ref = "accompanist-version" }
-accompanist-insets = { module = "com.google.accompanist:accompanist-insets", version.ref = "accompanist-version" }
-accompanist-appcompat-theme = { module = "com.google.accompanist:accompanist-appcompat-theme", version.ref = "accompanist-version" }
-accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanist-version" }
-accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist-version" }
-accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanist-version" }
-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-version" }
+
 ##########################
 commons-lang3 = "org.apache.commons:commons-lang3:3.12.0"
 commons-exec = "org.apache.commons:commons-exec:1.3"
@@ -120,7 +112,6 @@ glide-compiler = "com.github.bumptech.glide:compiler:4.12.0"
 
 [bundles]
 ktor = ["ktor-server-core", "ktor-server-netty", "ktor-server-websockets", "ktor-client-websockets", "ktor-client-okhttp", "ktor-client-core"]
-accompanist = ["accompanist-webview", "accompanist-systemuicontroller", "accompanist-insets-ui", "accompanist-insets", "accompanist-appcompat-theme", "accompanist-swiperefresh", "accompanist-pager", "accompanist-pager-indicators", "accompanist-permissions"]
 mlkit = [
     "mlkit-text-recognition",
     "mlkit-text-recognition-chinese",

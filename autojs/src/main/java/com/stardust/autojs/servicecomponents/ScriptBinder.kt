@@ -10,6 +10,7 @@ import com.stardust.autojs.IndependentScriptService
 import com.stardust.autojs.execution.ExecutionConfig
 import com.stardust.autojs.script.ScriptFile
 import com.stardust.autojs.script.ScriptSource
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
@@ -55,7 +56,7 @@ class ScriptBinder(service: IndependentScriptService, val scope: CoroutineScope)
         val listener = bundle.getBinder(BinderScriptListener.TAG)?.let {
             BinderScriptListener.ServerInterface(it)
         }
-        Log.d(TAG,"engineName = ${taskInfo.engineName}")
+        Log.d(TAG, "engineName = ${taskInfo.engineName}")
         val source: ScriptSource = ScriptFile(taskInfo.sourcePath).toSource()
         AutoJs.instance.scriptEngineService.execute(
             source, listener,
@@ -82,12 +83,12 @@ class ScriptBinder(service: IndependentScriptService, val scope: CoroutineScope)
         val listener = BinderScriptListener.ServerInterface(binder)
         AutoJs.instance.scriptEngineService.registerGlobalScriptExecutionListener(listener)
     }
-    private fun registerGlobalConsoleListener(data: Parcel){
+
+    private fun registerGlobalConsoleListener(data: Parcel) {
         val binder = data.readStrongBinder()
         val listener = BinderConsoleListener.ServerInterface(binder)
-        val sub = AutoJs.instance.globalConsole.createObservable().subscribe {
-            listener.onPrintln(it)
-        }
+        val sub = AutoJs.instance.globalConsole.logPublish
+            .observeOn(Schedulers.single()).subscribe(listener::onPrintln)
     }
 
     enum class Action(val id: Int) {

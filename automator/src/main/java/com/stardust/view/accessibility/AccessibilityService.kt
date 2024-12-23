@@ -1,16 +1,17 @@
 package com.stardust.view.accessibility
 
-import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.stardust.event.EventDispatcher
+import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.TreeMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Created by Stardust on 2017/5/2.
@@ -23,24 +24,18 @@ open class AccessibilityService : android.accessibilityservice.AccessibilityServ
         fun onGesture(gestureId: Int)
     }
 
+    private val keyObserver = PublishSubject.create<KeyEvent>()
     val onKeyObserver = OnKeyListener.Observer()
     val keyInterrupterObserver = KeyInterceptor.Observer()
     val gestureEventDispatcher = EventDispatcher<GestureListener>()
-    private var mEventExecutor: ExecutorService? = null
+
     private var mFastRootInActiveWindow: AccessibilityNodeInfo? = null
-    private val eventExecutor: ExecutorService
-        get() {
-            return mEventExecutor ?: run {
-                val executor = Executors.newSingleThreadExecutor()
-                mEventExecutor = executor
-                executor
-            }
-        }
+    private val eventExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         instance = this
         // Log.v(TAG, "onAccessibilityEvent: $event");
-        if (!containsAllEventTypes && !eventTypes.contains(event.eventType))
+        if (filterEventTypes?.contains(event.eventType) == false)
             return
         val type = event.eventType
         if (type == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED || type == AccessibilityEvent.TYPE_VIEW_FOCUSED) {
@@ -50,14 +45,13 @@ open class AccessibilityService : android.accessibilityservice.AccessibilityServ
             }
         }
 
-        for ((_, delegate) in mDelegates) {
-            val types = delegate.eventTypes
-            if (types != null && !delegate.eventTypes!!.contains(event.eventType))
-                continue
-            //long start = System.currentTimeMillis();
-            if (delegate.onAccessibilityEvent(this@AccessibilityService, event))
-                break
-            //Log.v(TAG, "millis: " + (System.currentTimeMillis() - start) + " delegate: " + entry.getValue().getClass().getName());
+        eventExecutor.execute {
+            for ((_, delegate) in mDelegates) {
+                if (delegate.eventTypes?.contains(event.eventType) == false)
+                    continue
+                if (delegate.onAccessibilityEvent(this@AccessibilityService, event))
+                    break
+            }
         }
     }
 
@@ -67,17 +61,20 @@ open class AccessibilityService : android.accessibilityservice.AccessibilityServ
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
+        Log.v(TAG, "onKeyEvent: $event")
         eventExecutor.execute {
             stickOnKeyObserver.onKeyEvent(event.keyCode, event)
             onKeyObserver.onKeyEvent(event.keyCode, event)
+            keyObserver.onNext(event)
         }
         return keyInterrupterObserver.onInterceptKeyEvent(event)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onGesture(gestureId: Int): Boolean {
         eventExecutor.execute {
             gestureEventDispatcher.dispatchEvent {
-                onGesture(gestureId)
+                it.onGesture(gestureId)
             }
         }
         return false
@@ -94,8 +91,9 @@ open class AccessibilityService : android.accessibilityservice.AccessibilityServ
 
     override fun onDestroy() {
         Log.v(TAG, "onDestroy: $instance")
+        ENABLED = Job()
         instance = null
-        mEventExecutor?.shutdownNow()
+        eventExecutor.shutdownNow()
         super.onDestroy()
     }
 
@@ -104,9 +102,7 @@ open class AccessibilityService : android.accessibilityservice.AccessibilityServ
         Log.v(TAG, "onServiceConnected: $serviceInfo")
         instance = this
         super.onServiceConnected()
-        LOCK.lock()
-        ENABLED.signalAll()
-        LOCK.unlock()
+        ENABLED.complete()
         // FIXME: 2017/2/12 有时在无障碍中开启服务后这里不会调用服务也不会运行，安卓的BUG???
     }
 
@@ -120,49 +116,33 @@ open class AccessibilityService : android.accessibilityservice.AccessibilityServ
         private const val TAG = "AccessibilityService"
 
         private val mDelegates = TreeMap<Int, AccessibilityDelegate>()
-        private val LOCK = ReentrantLock()
-        private val ENABLED = LOCK.newCondition()
+
+        @Volatile
+        private var ENABLED = Job()
         var instance: AccessibilityService? = null
             private set
         val stickOnKeyObserver = OnKeyListener.Observer()
-        private var containsAllEventTypes = false
-        private val eventTypes = HashSet<Int>()
+        private var filterEventTypes: HashSet<Int>? = HashSet()
 
         fun addDelegate(uniquePriority: Int, delegate: AccessibilityDelegate) {
             mDelegates[uniquePriority] = delegate
             val set = delegate.eventTypes
-            if (set == null)
-                containsAllEventTypes = true
-            else
-                eventTypes.addAll(set)
+            if (set == null) filterEventTypes = null
+            else filterEventTypes?.addAll(set)
         }
 
         fun disable(): Boolean {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                instance?.disableSelf()
-                return true
-            }
-            return false
+            instance?.disableSelf()
+            return true
         }
 
-        fun waitForEnabled(timeOut: Long): Boolean {
-            if (instance != null)
-                return true
-            LOCK.lock()
-            try {
-                if (instance != null)
-                    return true
-                if (timeOut == -1L) {
-                    ENABLED.await()
-                    return true
-                }
-                return ENABLED.await(timeOut, TimeUnit.MILLISECONDS)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-                return false
-            } finally {
-                LOCK.unlock()
-            }
+        fun waitForEnabled(timeOut: Long): Boolean = runBlocking {
+            if (instance != null) return@runBlocking true
+            if (timeOut == -1L) {
+                ENABLED.join();true
+            } else withTimeoutOrNull(timeOut) {
+                ENABLED.join();true
+            } != null
         }
     }
 
