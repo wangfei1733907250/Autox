@@ -146,7 +146,7 @@ class ConsoleView : FrameLayout, LogListener {
         if (mConsole == null) return
         val oldSize = mLogEntries.size
         val logEntries = mConsole!!.allLogs
-        synchronized(mConsole!!.allLogs) {
+        synchronized(logEntries) {
             val size = logEntries.size
             if (size == 0) {
                 return

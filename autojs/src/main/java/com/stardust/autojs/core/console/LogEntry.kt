@@ -1,8 +1,11 @@
 package com.stardust.autojs.core.console
 
-class LogEntry(
-    val id: Int, val level: Int,
-    val content: CharSequence,
+import android.util.Log
+
+data class LogEntry(
+    val id: Int = -1,
+    val level: Int = Log.DEBUG,
+    val content: String = "",
     val newLine: Boolean = false,
 ) : Comparable<LogEntry> {
 

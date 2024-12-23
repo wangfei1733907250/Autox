@@ -8,6 +8,9 @@ import com.stardust.autojs.script.JavaScriptSource
 import com.stardust.autojs.script.ScriptFile
 import com.stardust.autojs.script.ScriptSource
 import com.stardust.autojs.servicecomponents.ScriptServiceConnection.Companion.GlobalConnection
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +51,7 @@ object EngineController {
         }
         return@lazy listeners
     }
+    private val globalConsoleListener = 1
 
     fun runScript(taskInfo: TaskInfo, listener: BinderScriptListener? = null) = scope.launch {
         try {
@@ -99,6 +103,15 @@ object EngineController {
 
     fun stopAllScript() = scope.launch {
         serviceConnection.stopAllScript()
+    }
+
+    fun registerGlobalConsoleListener(
+        listener: BinderConsoleListener,
+        scheduler: Scheduler = Schedulers.newThread()
+    ): Disposable {
+        return serviceConnection.binderConsoleListener.logPublish.observeOn(scheduler).subscribe(
+            listener::onPrintln
+        )
     }
 
     fun registerGlobalScriptExecutionListener(listener: BinderScriptListener) =

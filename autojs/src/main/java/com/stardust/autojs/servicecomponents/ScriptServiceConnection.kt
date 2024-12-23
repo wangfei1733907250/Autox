@@ -4,14 +4,19 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import com.stardust.autojs.IndependentScriptService
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 class ScriptServiceConnection : ServiceConnection {
+    val binderConsoleListener = BinderConsoleListener.ClientInterface()
     var reBind: (() -> Unit)? = null
     lateinit var service: IBinder
     private val connected = Job()
@@ -20,11 +25,15 @@ class ScriptServiceConnection : ServiceConnection {
     var isConnected = false
         private set
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         check(service != null) { "service is null" }
         this.service = service
         isConnected = true
         connected.complete()
+        GlobalScope.launch {
+            registerGlobalConsoleListener(binderConsoleListener)
+        }
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
@@ -81,13 +90,9 @@ class ScriptServiceConnection : ServiceConnection {
         send()
     }
 
-    suspend fun registerGlobalConsoleListener(listener: BinderConsoleListener) = sendBinder {
+    suspend fun registerGlobalConsoleListener(listener: Binder) = sendBinder {
         action = ScriptBinder.Action.REGISTER_GLOBAL_CONSOLE_LISTENER.id
-        data.writeStrongBinder(
-            BinderConsoleListener.ClientInterface(
-                listener
-            )
-        )
+        data.writeStrongBinder(listener)
         send()
     }
 
