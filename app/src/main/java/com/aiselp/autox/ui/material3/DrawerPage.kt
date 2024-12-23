@@ -47,6 +47,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -173,10 +174,15 @@ private fun AccessibilityServiceSwitch() {
         icon = Icons.Default.Edit,
         title = "启用新编辑器",
         value = editor,
+        tint = Color(0xFF996231)
     )
     SettingOptionSwitch(
         icon = {
-            Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = null,
+                tint = Color(0xFF3F51B5)
+            )
         },
         title = stringResource(id = R.string.text_accessibility_service),
         checked = isAccessibilityServiceEnabled.value,
@@ -229,7 +235,8 @@ private fun StableModeSwitch() {
         icon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_triangle),
-                contentDescription = null
+                contentDescription = null,
+                tint = Color(0xFF4E9117)
             )
         },
         title = stringResource(id = R.string.text_stable_mode),
@@ -273,6 +280,7 @@ private fun NotificationUsageRightSwitch() {
         icon = Icons.Default.Notifications,
         title = stringResource(id = R.string.text_notification_permission),
         value = isNotificationListenerEnable,
+        tint = Color(0xFF331E4B)
     )
 }
 
@@ -296,6 +304,7 @@ private fun ForegroundServiceSwitch() {
         icon = Icons.Default.Settings,
         title = stringResource(id = R.string.text_foreground_service),
         value = isOpenForegroundServices,
+        tint = Color(0xFFA0DFCB)
     )
 }
 
@@ -318,7 +327,8 @@ private fun UsageStatsPermissionSwitch() {
         icon = Icons.Default.Settings,
         title = stringResource(id = R.string.text_usage_stats_permission),
         checked = enabled,
-        onCheckedChange = { scope.launch { if (it) dialog.show() } }
+        onCheckedChange = { scope.launch { if (it) dialog.show() } },
+        tint = Color(0xFF96142F)
     )
     dialog.AlertDialog(
         title = stringResource(id = R.string.text_usage_stats_permission),
@@ -350,7 +360,7 @@ private fun FloatingWindowSwitch() {
     )
     SettingOptionSwitch(
         icon = {
-            Icon(painterResource(id = R.drawable.ic_overlay), null)
+            Icon(painterResource(id = R.drawable.ic_overlay), null, tint = Color(0xFF025594))
         },
         title = stringResource(id = R.string.text_floating_window),
         checked = isFloatingWindowShowing,
@@ -381,7 +391,7 @@ private fun VolumeDownControlSwitch() {
     }
     SettingOptionSwitch(
         icon = {
-            Icon(painterResource(id = R.drawable.ic_sound_waves), null)
+            Icon(painterResource(id = R.drawable.ic_sound_waves), null, tint = Color(0xFF496F14))
         },
         title = stringResource(id = R.string.text_volume_down_control),
         checked = enable,
@@ -407,7 +417,8 @@ private fun AutoBackupSwitch() {
         icon = {
             Icon(
                 painterResource(id = R.drawable.ic_backup),
-                null
+                null,
+                tint = Color(0xFF496F14)
             )
         },
         title = stringResource(id = R.string.text_auto_backup),
@@ -471,7 +482,7 @@ private fun ConnectComputerSwitch() {
     }
     SettingOptionSwitch(
         icon = {
-            Icon(painterResource(id = R.drawable.ic_debug), null)
+            Icon(painterResource(id = R.drawable.ic_debug), null, tint = Color(0xFF008A38))
         },
         title = stringResource(
             id = if (!enable) R.string.text_connect_computer
@@ -529,7 +540,8 @@ fun USBDebugSwitch() {
         icon = {
             Icon(
                 painterResource(id = R.drawable.ic_debug),
-                contentDescription = null
+                contentDescription = null,
+                tint = Color(0xFF008A38)
             )
         },
         title = stringResource(id = R.string.text_open_usb_debug),

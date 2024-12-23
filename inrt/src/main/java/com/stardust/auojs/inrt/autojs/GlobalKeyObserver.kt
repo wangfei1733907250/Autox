@@ -1,5 +1,6 @@
 package com.stardust.auojs.inrt.autojs
 
+import android.util.Log
 import android.view.KeyEvent
 import com.stardust.app.GlobalAppContext
 import com.stardust.auojs.inrt.Pref
@@ -20,14 +21,15 @@ class GlobalKeyObserver internal constructor() : OnKeyListener, ShellKeyObserver
 
     init {
         AccessibilityService.stickOnKeyObserver
-                .addListener(this)
+            .addListener(this)
         val observer = ShellKeyObserver()
         observer.setKeyListener(this)
         InputEventObserver.getGlobal(GlobalAppContext.get()).addListener(observer)
     }
 
-    fun onVolumeUp() {
+    private fun onVolumeUp() {
         if (Pref.shouldStopAllScriptsWhenVolumeUp()) {
+            Log.d(LOG_TAG, "stop all scripts when volume up")
             AutoJs.instance.scriptEngineService.stopAllAndToast()
         }
     }
@@ -82,7 +84,7 @@ class GlobalKeyObserver internal constructor() : OnKeyListener, ShellKeyObserver
     companion object {
 
 
-        private val LOG_TAG = "GlobalKeyObserver"
+        private const val LOG_TAG = "GlobalKeyObserver"
         private val sSingleton = GlobalKeyObserver()
 
         fun init() {

@@ -10,6 +10,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -47,7 +48,8 @@ private fun EditorButton() {
     }) {
         Icon(
             imageVector = Icons.Default.Edit,
-            contentDescription = "editor"
+            contentDescription = "editor",
+            tint = Color(0xFF996231)
         )
     }
 }
@@ -59,7 +61,8 @@ private fun LogButton() {
     IconButton(onClick = { LogActivityKt.start(context) }) {
         Icon(
             painter = painterResource(id = R.drawable.ic_logcat),
-            contentDescription = stringResource(id = R.string.text_logcat)
+            contentDescription = stringResource(id = R.string.text_logcat),
+            tint = Color(0xFF005BC9)
         )
     }
 }

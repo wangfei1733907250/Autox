@@ -53,6 +53,7 @@ public class GlobalKeyObserver implements OnKeyListener, ShellKeyObserver.KeyLis
     public void onVolumeUp() {
         Log.d(LOG_TAG, "onVolumeUp at " + System.currentTimeMillis());
         if (Pref.isRunningVolumeControlEnabled()) {
+            Log.d(LOG_TAG, "stop all scripts when volume up");
             AutoJs.getInstance().getScriptEngineService().stopAllAndToast();
         }
     }
